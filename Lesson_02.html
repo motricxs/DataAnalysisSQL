@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head><style data-atlas-ui-policy="v3">
+[data-testid="accounts-profile-button"],
+[data-testid="profile-menu-button"],
+.accounts-profile-button,
+[aria-label="Open profile menu"],
+[data-testid*="history-item"][data-testid*="options"],
+[aria-label="Open conversation options"],
+[data-testid="conversation-options-button"],
+[data-sidebar-item="true"] .trailing button.__menu-item-trailing-btn,
+[data-sidebar-item="true"] .trailing-pair button.__menu-item-trailing-btn,
+[data-sidebar-item="true"] .trailing [data-trailing-button],
+[data-sidebar-item="true"] .trailing-pair [data-trailing-button],
+.trailing.highlight button.__menu-item-trailing-btn,
+.trailing.highlight [data-trailing-button],
+button[aria-label="Show project details"],
+button[aria-label*="project details" i],
+[data-testid*="delete" i],
+[aria-label*="delete" i],
+[role="menuitem"][data-testid*="delete" i],
+a[href*="/settings"],
+[data-testid="settings-button"],
+[data-atlas-ui-restricted="true"] {
+	display: none !important;
+	visibility: hidden !important;
+	pointer-events: none !important;
+}
+button.__menu-item-trailing-btn[aria-label="New project"],
+button.__menu-item-trailing-btn[aria-label="Organize chats"],
+button[data-trailing-button][aria-label="New project"],
+button[data-trailing-button][aria-label="Organize chats"] {
+	display: inline-flex !important;
+	visibility: visible !important;
+	pointer-events: auto !important;
+}
+#atlas-logout-container {
+	position: fixed;
+	bottom: var(--atlas-sidebar-bottom, 0);
+	left: var(--atlas-sidebar-left, 0);
+	width: var(--atlas-sidebar-width, 0);
+	z-index: 2147483647;
+	padding: 8px 10px max(12px, env(safe-area-inset-bottom));
+	box-sizing: border-box;
+	pointer-events: none;
+}
+#atlas-logout-container[data-visible="false"] { display: none !important; }
+#atlas-logout-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	padding: 10px 14px;
+	border: 0;
+	border-radius: 12px;
+	background: linear-gradient(135deg, #fff, #f8f8f8);
+	color: #141313;
+	box-shadow: 0 4px 15px rgb(0 0 0 / 30%);
+	cursor: pointer;
+	font: 600 14px ui-sans-serif, system-ui, sans-serif;
+	pointer-events: auto;
+}
+#atlas-logout-button:hover { transform: translateY(-2px); }
+#atlas-logout-button svg { width: 18px; height: 18px; }
+</style><script data-atlas-ui-policy-runtime="v3">(()=>{if(window.__atlasUiPolicyV3)return;window.__atlasUiPolicyV3=true;const allowed=new Set(["new project","organize chats"]),selector='[role="menuitem"],[role="button"],button',restrict=root=>{const nodes=[];if(root&&root.nodeType===Node.ELEMENT_NODE&&root.matches&&root.matches(selector))nodes.push(root);if(root&&root.querySelectorAll)root.querySelectorAll(selector).forEach(node=>nodes.push(node));nodes.forEach(node=>{if(node.closest("#atlas-logout-container"))return;const label=(node.getAttribute("aria-label")||"").trim().toLowerCase();if(allowed.has(label))return;const text=(node.textContent||"").replace(/\s+/g," ").trim().toLowerCase();if(/\b(delete|remove)\b/.test(text)||text.includes("حذف"))node.dataset.atlasUiRestricted="true"})},sidebar=()=>{const selectors=['[data-testid="sidebar"]','[data-testid="left-sidebar"]','[data-testid="conversation-sidebar"]','[data-sidebar]','aside','nav[aria-label*="chat" i]','nav[aria-label*="navigation" i]'],mobile=matchMedia("(max-width: 768px)").matches,candidates=[];selectors.forEach((value,index)=>{try{document.querySelectorAll(value).forEach(element=>{if(!(element instanceof HTMLElement)||candidates.some(item=>item.element===element))return;const rect=element.getBoundingClientRect(),style=getComputedStyle(element),visible=rect.width>=48&&rect.width<=Math.min(440,innerWidth)&&rect.height>120&&rect.right>0&&rect.left<innerWidth&&rect.bottom>0&&rect.top<innerHeight&&style.display!=="none"&&style.visibility!=="hidden"&&parseFloat(style.opacity||"1")>0;if(!visible||(mobile&&rect.width<180))return;candidates.push({element,rect,score:(selectors.length-index)*100000-Math.max(0,rect.left)*100+Math.min(rect.height,innerHeight)+Math.min(rect.width,400)})})}catch{}});candidates.sort((a,b)=>b.score-a.score);return candidates[0]||null},ensureLogout=()=>{if(!document.body)return;let container=document.getElementById("atlas-logout-container");if(!container){container=document.createElement("div");container.id="atlas-logout-container";container.innerHTML='<button id="atlas-logout-button" type="button" aria-label="خروج از سامانه"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span>خروج</span></button>';container.querySelector("button").addEventListener("click",()=>{if(confirm("آیا مطمئن هستید که می‌خواهید خارج شوید؟"))location.assign("/logout")});document.body.appendChild(container)}if(container.parentElement!==document.body)document.body.appendChild(container);const host=sidebar();if(!host){container.dataset.visible="false";return}container.dataset.visible="true";container.style.setProperty("--atlas-sidebar-left",host.rect.left+"px");container.style.setProperty("--atlas-sidebar-width",Math.max(48,Math.min(host.rect.width,innerWidth))+"px");container.style.setProperty("--atlas-sidebar-bottom",Math.max(0,innerHeight-host.rect.bottom)+"px")},start=()=>{if(!document.body)return;restrict(document.body);ensureLogout();let queued=false;const pending=new Set,schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{pending.forEach(restrict);pending.clear();ensureLogout();queued=false})};new MutationObserver(records=>{let changed=false;records.forEach(record=>{if(record.target instanceof Element&&record.target.closest("#atlas-logout-container"))return;changed=true;record.addedNodes.forEach(node=>{if(node.nodeType===Node.ELEMENT_NODE)pending.add(node)})});if(changed)schedule()}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","style","hidden","aria-expanded","aria-hidden","data-state"]});addEventListener("resize",schedule,{passive:true});document.addEventListener("transitionend",schedule,true)};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",start,{once:true}):start()})();</script><script data-atlas-runtime="v3">(()=>{const h=new Set(["chatgpt.com","chat.openai.com"]),r=u=>{try{const s=typeof u==="string"?u:u instanceof URL?u.href:null;if(!s)return u;const x=new URL(s,location.href);if(!h.has(x.hostname))return u;x.protocol=x.protocol==="wss:"||x.protocol==="ws:"?(location.protocol==="https:"?"wss:":"ws:"):location.protocol;x.host=location.host;return x.href}catch{return u}};if(window.fetch){const f=window.fetch;window.fetch=new Proxy(f,{apply(t,a,g){const i=g[0];if(i instanceof Request){const n=r(i.url);if(n!==i.url)g[0]=new Request(n,i)}else g[0]=r(i);return Reflect.apply(t,a,g)}})}if(window.XMLHttpRequest){const o=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u,...a){return o.call(this,m,r(u),...a)}}if(window.WebSocket){const W=window.WebSocket;window.WebSocket=new Proxy(W,{construct(t,a,n){a[0]=r(a[0]);return Reflect.construct(t,a,n)}})}if(window.EventSource){const E=window.EventSource;window.EventSource=new Proxy(E,{construct(t,a,n){a[0]=r(a[0]);return Reflect.construct(t,a,n)}})}if(navigator.sendBeacon){const b=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=new Proxy(b,{apply(t,a,g){g[0]=r(g[0]);return Reflect.apply(t,a,g)}})}})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="درسنامه جلسه دوم SQL؛ نوشتن پرس‌وجو با SELECT و FROM، نام مستعار، DISTINCT، View و تفاوت PostgreSQL و SQL Server.">
+  <meta name="theme-color" content="#071a2d">
+  <title>Lesson_02 | نوشتن پرس‌وجوهای SQL</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="quiz-engine.js" defer></script>
+  <script src="syntax-highlighter.js" defer></script>
+</head>
+<body id="top">
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+
+  <main class="container">
+    <nav class="profile-socials" aria-label="شبکه‌های اجتماعی">
+      <a class="profile-socials__link profile-socials__link--instagram" href="https://www.instagram.com/matcub_official/" target="_blank" rel="noopener noreferrer">
+        <span class="profile-socials__icon" aria-hidden="true">◎</span><span>Instagram</span>
+      </a>
+      <a class="profile-socials__link profile-socials__link--telegram" href="https://t.me/matcub" target="_blank" rel="noopener noreferrer">
+        <span class="profile-socials__icon" aria-hidden="true">➤</span><span>Telegram</span>
+      </a>
+      <a class="profile-socials__link profile-socials__link--linkedin" href="https://www.linkedin.com/in/mohammadfallah1373/" target="_blank" rel="noopener noreferrer">
+        <span class="profile-socials__icon profile-socials__icon--linkedin" aria-hidden="true">in</span><span>LinkedIn</span>
+      </a>
+    </nav>
+
+    <header class="topbar">
+      <a class="topbar__brand" href="#top">MATCUB · SQL Learning</a>
+      <nav class="topbar__links" aria-label="ناوبری صفحه">
+        <a href="#overview">معرفی</a>
+        <a href="#first-query">اولین پرس‌وجو</a>
+        <a href="#refining">بهینه‌سازی خروجی</a>
+        <a href="#flavors">گونه‌های SQL</a>
+        <a href="#quiz">آزمون</a>
+      </nav>
+    </header>
+
+    <header class="hero" id="overview">
+      <div class="hero-content">
+        <div class="hero-label">⌨️ جلسه دوم · نوشتن پرس‌وجوهای SQL</div>
+        <h1>از شناخت داده‌ها تا <span>نوشتن پرس‌وجو</span></h1>
+        <p class="hero-subtitle">در این جلسه یاد می‌گیریم با دستورهای SQL داده‌های موردنیاز را از جدول‌ها انتخاب کنیم، نام ستون‌های خروجی را تغییر دهیم، مقادیر تکراری را حذف کنیم، پرس‌وجوها را به شکل View ذخیره کنیم و با تفاوت‌های PostgreSQL و SQL Server آشنا شویم.</p>
+        <div class="hero-badge">SQL · SELECT · FROM · DISTINCT · AS · VIEW · LIMIT</div>
+      </div>
+    </header>
+
+    <div class="lesson-meta" aria-label="اطلاعات درس">
+      <span class="lesson-meta__item">📘 <strong>Lesson_02</strong></span>
+      <span class="lesson-meta__item">🎯 سطح: <strong>مقدماتی</strong></span>
+      <span class="lesson-meta__item">⏱️ زمان مطالعه: <strong>حدود ۱۵ دقیقه</strong></span>
+      <span class="lesson-meta__item">🧪 تمرین: <strong>کدنویسی و آزمون تعاملی</strong></span>
+    </div>
+    <div class="badges" aria-label="موضوعات درس">
+      <span class="badge gold">SQL Queries</span>
+      <span class="badge green">SELECT / FROM</span>
+      <span class="badge blue">DISTINCT</span>
+      <span class="badge purple">Aliasing & Views</span>
+      <span class="badge orange">SQL Flavors</span>
+    </div>
+
+    <section class="learning-intro" id="intro" aria-labelledby="intro-title">
+      <div class="learning-intro__eyebrow">✨ مسیر یادگیری</div>
+      <h2 id="intro-title">در پایان این جلسه چه چیزهایی یاد می‌گیریم؟</h2>
+      <p>پس از شناخت ساختار پایگاه داده، اکنون می‌توانیم با پرس‌وجوها مستقیماً سراغ اطلاعات موردنیاز برویم. در این جلسه از دستورهای پایه شروع می‌کنیم و به‌تدریج یاد می‌گیریم خروجی را خواناتر، بدون تکرار و قابل استفاده مجدد کنیم.</p>
+      <ul class="learning-objectives">
+        <li>درک کاربرد SQL برای پاسخ‌دادن به پرسش‌های تحلیلی و کسب‌وکار</li>
+        <li>نوشتن پرس‌وجو با <bdi dir="ltr" class="en">SELECT</bdi> و <bdi dir="ltr" class="en">FROM</bdi></li>
+        <li>انتخاب چند ستون یا تمام ستون‌های یک جدول</li>
+        <li>استفاده از <bdi dir="ltr" class="en">AS</bdi> و <bdi dir="ltr" class="en">DISTINCT</bdi></li>
+        <li>ساخت و استفاده از <bdi dir="ltr" class="en">View</bdi></li>
+        <li>شناخت تفاوت‌های پایه میان <bdi dir="ltr" class="en">PostgreSQL</bdi> و <bdi dir="ltr" class="en">SQL Server</bdi></li>
+        <li>محدودکردن تعداد ردیف‌های خروجی با <bdi dir="ltr" class="en">LIMIT</bdi> یا <bdi dir="ltr" class="en">TOP</bdi></li>
+      </ul>
+    </section>
+
+    <nav class="toc" aria-label="فهرست مطالب">
+      <h2>📑 فهرست مطالب</h2>
+      <ol>
+        <li><a href="#why-sql">SQL چه کاربردی دارد؟</a></li>
+        <li><a href="#first-query">ساختار اولین پرس‌وجو</a></li>
+        <li><a href="#selecting">انتخاب چند ستون یا همه ستون‌ها</a></li>
+        <li><a href="#practice-books">تمرین انتخاب داده از books</a></li>
+        <li><a href="#refining">نام مستعار و مقادیر یکتا</a></li>
+        <li><a href="#views">ساخت و استفاده از View</a></li>
+        <li><a href="#flavors">گونه‌های SQL و تفاوت آن‌ها</a></li>
+        <li><a href="#limit">محدودکردن تعداد نتایج</a></li>
+        <li><a href="#summary">جمع‌بندی</a></li>
+        <li><a href="#quiz">آزمون پایان جلسه</a></li>
+      </ol>
+    </nav>
+
+    <section class="section gold" id="why-sql">
+      <h2 class="section-title">۱. SQL چه کاربردی دارد؟</h2>
+      <p><bdi dir="ltr" class="en">SQL</bdi> ابزاری برای پرسیدن سؤال از داده‌های ذخیره‌شده در پایگاه داده است. با نوشتن یک پرس‌وجو یا <bdi dir="ltr" class="en">Query</bdi> مشخص می‌کنیم چه اطلاعاتی را می‌خواهیم و این اطلاعات از کدام جدول یا جدول‌ها باید دریافت شوند.</p>
+      <p>پرس‌وجوها می‌توانند برای پاسخ‌دادن به سؤال‌هایی درباره یک جدول یا چند جدول مرتبط استفاده شوند. برای نمونه، در پایگاه داده کتابخانه می‌توانیم مشخص کنیم جیمز در سال ۲۰۲۲ چه کتاب‌هایی را امانت گرفته است. در یک پایگاه داده منابع انسانی نیز می‌توان حقوق کارکنان واحدهای بازاریابی و حسابداری را استخراج کرد و آن‌ها را با یکدیگر مقایسه کرد.</p>
+
+      <div class="info-grid">
+        <article class="info-card">
+          <h3>📚 کتابخانه</h3>
+          <p>کدام کتاب‌ها را یک عضو مشخص در سال معینی امانت گرفته است؟</p>
+        </article>
+        <article class="info-card">
+          <h3>👥 منابع انسانی</h3>
+          <p>حقوق کارکنان واحدهای مختلف چگونه با یکدیگر مقایسه می‌شود؟</p>
+        </article>
+        <article class="info-card">
+          <h3>🛒 فروش</h3>
+          <p>کدام محصولات در هفته گذشته بیشترین میزان فروش را داشته‌اند؟</p>
+        </article>
+        <article class="info-card">
+          <h3>⭐ بازخورد مشتریان</h3>
+          <p>کدام محصولات پایین‌ترین امتیازهای ثبت‌شده را دریافت کرده‌اند؟</p>
+        </article>
+        <article class="info-card">
+          <h3>🌐 بازدید وب‌سایت</h3>
+          <p>پس از اضافه‌شدن یک قابلیت جدید، میزان بازدید وب‌سایت چه تغییری کرده است؟</p>
+        </article>
+        <article class="info-card">
+          <h3>📊 تحلیل کسب‌وکار</h3>
+          <p>چگونه می‌توان از حجم زیادی از داده‌های مرتبط، روندها و الگوها را استخراج کرد؟</p>
+        </article>
+      </div>
+
+      <div class="box note">
+        <p>SQL در بسیاری از سازمان‌ها در کنار ابزارهایی مانند نرم‌افزارهای صفحه‌گسترده استفاده می‌شود. مزیت مهم آن، امکان پرس‌وجو از حجم زیادی از داده‌ها و بررسی ارتباط میان بخش‌های مختلف اطلاعات است.</p>
+      </div>
+      <div class="box important">
+        <p>اگر اطلاعات موردنیاز در چند جدول مرتبط و در حجم زیاد نگهداری می‌شود، SQL می‌تواند راه مناسبی برای استخراج و تحلیل آن باشد. اگر تمام اطلاعات لازم در یک صفحه‌گسترده ساده و بدون ارتباط‌های پیچیده وجود داشته باشد، ممکن است استفاده از همان ابزار کافی باشد.</p>
+      </div>
+    </section>
+
+    <section class="section blue" id="first-query">
+      <h2 class="section-title">۲. ساختار اولین پرس‌وجوی SQL</h2>
+      <h3>واژه‌های کلیدی (Keywords)</h3>
+      <p>واژه‌های کلیدی، کلمات رزروشده‌ای هستند که نوع عملیاتی را که SQL باید انجام دهد مشخص می‌کنند. دو واژه کلیدی پایه که برای نوشتن اولین پرس‌وجو به آن‌ها نیاز داریم عبارت‌اند از:</p>
+      <div class="info-grid">
+        <article class="info-card">
+          <h3><bdi dir="ltr" class="en">SELECT</bdi></h3>
+          <p>مشخص می‌کند کدام فیلدها یا ستون‌ها باید در خروجی نمایش داده شوند.</p>
+        </article>
+        <article class="info-card">
+          <h3><bdi dir="ltr" class="en">FROM</bdi></h3>
+          <p>مشخص می‌کند اطلاعات موردنظر از کدام جدول دریافت شوند.</p>
+        </article>
+      </div>
+      <p>فرض کنیم می‌خواهیم نام تمام اعضای کتابخانه را از جدول <bdi dir="ltr" class="en">patrons</bdi> دریافت کنیم. ستون موردنیاز <bdi dir="ltr" class="en">name</bdi> است و نام جدول نیز <bdi dir="ltr" class="en">patrons</bdi> است.</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT name
+FROM patrons;</code></pre>
+      </div>
+      <p>در این دستور، ابتدا ستون <bdi dir="ltr" class="en">name</bdi> با <bdi dir="ltr" class="en">SELECT</bdi> انتخاب شده و سپس با <bdi dir="ltr" class="en">FROM</bdi> مشخص شده است که این ستون از جدول <bdi dir="ltr" class="en">patrons</bdi> خوانده شود.</p>
+      <div class="path-flow">
+        <article class="path-flow__step"><h3>۱. انتخاب ستون</h3><p><bdi dir="ltr" class="en">SELECT name</bdi></p></article>
+        <article class="path-flow__step"><h3>۲. تعیین جدول</h3><p><bdi dir="ltr" class="en">FROM patrons</bdi></p></article>
+        <article class="path-flow__step"><h3>۳. پایان دستور</h3><p>افزودن <bdi dir="ltr" class="en">;</bdi></p></article>
+      </div>
+      <h3>نقطه‌ویرگول و شیوه نوشتن</h3>
+      <p>نقطه‌ویرگول <bdi dir="ltr" class="en">;</bdi> پایان دستور SQL را مشخص می‌کند. در سبک نگارشی رایج، واژه‌های کلیدی مانند <bdi dir="ltr" class="en">SELECT</bdi> و <bdi dir="ltr" class="en">FROM</bdi> با حروف بزرگ نوشته می‌شوند؛ در مقابل، نام جدول‌ها و فیلدها با حروف کوچک نوشته می‌شوند. این شیوه باعث می‌شود خواندن و بررسی پرس‌وجوها آسان‌تر شود.</p>
+      <div class="box example">
+        <p>خروجی اجرای پرس‌وجو، مجموعه‌ای از ردیف‌ها و ستون‌هاست که به آن <bdi dir="ltr" class="en">Result Set</bdi> می‌گویند. در مثال بالا، مجموعه نتایج شامل نام اعضای جدول <bdi dir="ltr" class="en">patrons</bdi> خواهد بود.</p>
+      </div>
+    </section>
+
+    <section class="section green" id="selecting">
+      <h2 class="section-title">۳. انتخاب چند ستون یا تمام ستون‌ها</h2>
+      <h3>انتخاب چند فیلد</h3>
+      <p>اگر به بیش از یک ستون نیاز داشته باشیم، نام ستون‌ها را پس از <bdi dir="ltr" class="en">SELECT</bdi> می‌نویسیم و آن‌ها را با کاما از یکدیگر جدا می‌کنیم. ترتیب نوشتن نام ستون‌ها، ترتیب نمایش آن‌ها در مجموعه نتایج را تعیین می‌کند.</p>
+      <p>برای مثال، برای مشاهده شماره عضویت و نام اعضا:</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT card_num, name
+FROM patrons;</code></pre>
+      </div>
+      <p>همچنین می‌توانیم سه ستون <bdi dir="ltr" class="en">name</bdi>، <bdi dir="ltr" class="en">card_num</bdi> و <bdi dir="ltr" class="en">total_fine</bdi> را به همین روش انتخاب کنیم:</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT name, card_num, total_fine
+FROM patrons;</code></pre>
+      </div>
+      <h3>انتخاب تمام ستون‌ها با ستاره</h3>
+      <p>برای انتخاب تمام ستون‌های یک جدول، لازم نیست نام تک‌تک آن‌ها را بنویسیم. می‌توانیم از علامت ستاره <bdi dir="ltr" class="en">*</bdi> استفاده کنیم. این علامت در این کاربرد، نویسه عمومی یا <bdi dir="ltr" class="en">Wildcard</bdi> است و به معنی انتخاب همه ستون‌هاست.</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT *
+FROM patrons;</code></pre>
+      </div>
+      <div class="box warning">
+        <p>علامت <bdi dir="ltr" class="en">*</bdi> تمام ستون‌های جدول را انتخاب می‌کند؛ اما اگر فقط به چند ستون مشخص نیاز دارید، بهتر است نام همان ستون‌ها را بنویسید تا خروجی دقیق‌تر و خواناتر باشد.</p>
+      </div>
+    </section>
+
+    <section class="section purple" id="practice-books">
+      <h2 class="section-title">۴. تمرین عملی: پرس‌وجو از جدول books</h2>
+      <p>در این تمرین با استفاده از جدول <bdi dir="ltr" class="en">books</bdi> سه حالت مختلف انتخاب ستون را اجرا می‌کنیم. هدف، تمرین نوشتن <bdi dir="ltr" class="en">SELECT</bdi> و <bdi dir="ltr" class="en">FROM</bdi> است.</p>
+      <div class="path-flow">
+        <article class="path-flow__step"><h3>تمرین اول</h3><p>فقط ستون <bdi dir="ltr" class="en">title</bdi> را انتخاب کنید تا عنوان همه کتاب‌ها نمایش داده شود.</p></article>
+        <article class="path-flow__step"><h3>تمرین دوم</h3><p>ستون‌های <bdi dir="ltr" class="en">title</bdi> و <bdi dir="ltr" class="en">author</bdi> را با هم انتخاب کنید.</p></article>
+        <article class="path-flow__step"><h3>تمرین سوم</h3><p>تمام ستون‌های جدول <bdi dir="ltr" class="en">books</bdi> را نمایش دهید.</p></article>
+      </div>
+      <h3>پاسخ تمرین اول: انتخاب عنوان کتاب‌ها</h3>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT title
+FROM books;</code></pre>
+      </div>
+      <h3>پاسخ تمرین دوم: انتخاب عنوان و نویسنده</h3>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT title, author
+FROM books;</code></pre>
+      </div>
+      <h3>پاسخ تمرین سوم: انتخاب تمام ستون‌ها</h3>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT *
+FROM books;</code></pre>
+      </div>
+      <div class="box success">
+        <p>در هر سه پرس‌وجو، جدول منبع یکسان است؛ تفاوت فقط در ستون‌هایی است که پس از <bdi dir="ltr" class="en">SELECT</bdi> انتخاب می‌کنیم.</p>
+      </div>
+    </section>
+
+    <section class="section orange" id="refining">
+      <h2 class="section-title">۵. خواناتر کردن خروجی: نام مستعار و DISTINCT</h2>
+      <h3>نام مستعار ستون‌ها (Aliasing)</h3>
+      <p>گاهی نام اصلی یک ستون برای نمایش در نتیجه پرس‌وجو به‌اندازه کافی روشن یا کوتاه نیست. در این حالت می‌توانیم با استفاده از واژه کلیدی <bdi dir="ltr" class="en">AS</bdi> برای ستون یک نام مستعار یا <bdi dir="ltr" class="en">Alias</bdi> تعیین کنیم.</p>
+      <p>فرض کنید جدول <bdi dir="ltr" class="en">employees</bdi> ستونی به نام <bdi dir="ltr" class="en">name</bdi> دارد که فقط نام کوچک کارکنان را نگهداری می‌کند. می‌توانیم نام این ستون را در خروجی به <bdi dir="ltr" class="en">first_name</bdi> تغییر دهیم:</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT name AS first_name
+FROM employees;</code></pre>
+      </div>
+      <div class="box note">
+        <p>نام مستعار فقط نام ستون را در مجموعه نتایج تغییر می‌دهد. نام واقعی فیلد در جدول همچنان <bdi dir="ltr" class="en">name</bdi> باقی می‌ماند و ساختار جدول تغییر نمی‌کند.</p>
+      </div>
+
+      <h3>حذف مقادیر تکراری با DISTINCT</h3>
+      <p>گاهی می‌خواهیم فهرستی از مقادیر یکتا داشته باشیم؛ یعنی هر مقدار فقط یک‌بار در خروجی دیده شود. برای این کار از واژه کلیدی <bdi dir="ltr" class="en">DISTINCT</bdi> استفاده می‌کنیم.</p>
+      <p>برای مثال، اگر ستون <bdi dir="ltr" class="en">year_hired</bdi> را از جدول کارکنان انتخاب کنیم، ممکن است سال استخدام بعضی کارکنان چند بار در خروجی تکرار شود. با قرار دادن <bdi dir="ltr" class="en">DISTINCT</bdi> پیش از نام ستون، سال‌های تکراری حذف می‌شوند:</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT DISTINCT year_hired
+FROM employees;</code></pre>
+      </div>
+      <p>اگر این دستور اجرا شود، هر سال استخدام فقط یک‌بار در مجموعه نتایج ظاهر می‌شود؛ حتی اگر چند کارمند در همان سال استخدام شده باشند.</p>
+
+      <h3>DISTINCT برای چند ستون</h3>
+      <p>می‌توانیم پس از <bdi dir="ltr" class="en">DISTINCT</bdi> چند ستون بنویسیم. در این حالت، SQL ترکیب یکتای مقادیر آن ستون‌ها را برمی‌گرداند. برای نمونه، اگر بخواهیم ترکیب واحد سازمانی و سال استخدام را بررسی کنیم، هر ترکیب از <bdi dir="ltr" class="en">dept_id</bdi> و <bdi dir="ltr" class="en">year_hired</bdi> فقط یک‌بار در خروجی ظاهر می‌شود.</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT DISTINCT dept_id, year_hired
+FROM employees;</code></pre>
+      </div>
+      <div class="box important">
+        <p><bdi dir="ltr" class="en">DISTINCT</bdi> در حالت چندستونی، یکتاییِ ترکیب کامل ستون‌های انتخاب‌شده را بررسی می‌کند؛ نه اینکه مقادیر هر ستون را به‌طور مستقل و جداگانه یکتا کند. بنابراین ممکن است یک <bdi dir="ltr" class="en">dept_id</bdi> یا یک <bdi dir="ltr" class="en">year_hired</bdi> به‌تنهایی چند بار دیده شود، اما هیچ دو ردیفی ترکیب کاملاً یکسانی نداشته باشند.</p>
+      </div>
+
+      <h3>تمرین: نویسندگان و ژانرهای یکتا</h3>
+      <p>جدول <bdi dir="ltr" class="en">books</bdi> شامل ۳۵۰ کتاب است. ابتدا فقط نویسندگان یکتا را انتخاب کنید. سپس پرس‌وجو را طوری تغییر دهید که ترکیب‌های یکتای نویسنده و ژانر نمایش داده شوند.</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT DISTINCT author
+FROM books;</code></pre>
+      </div>
+      <p>برای دریافت ترکیب یکتای نویسنده و ژانر، هر دو فیلد را پس از <bdi dir="ltr" class="en">DISTINCT</bdi> قرار می‌دهیم:</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT DISTINCT author, genre
+FROM books;</code></pre>
+      </div>
+
+      <h3>تمرین: تغییر نام ستون خروجی</h3>
+      <p>در پرس‌وجوی زیر، نام ستون <bdi dir="ltr" class="en">author</bdi> را در خروجی به <bdi dir="ltr" class="en">unique_author</bdi> تغییر می‌دهیم:</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT DISTINCT author AS unique_author
+FROM books;</code></pre>
+      </div>
+    </section>
+
+    <section class="section blue" id="views">
+      <h2 class="section-title">۶. ذخیره پرس‌وجوها با View</h2>
+      <p>گاهی یک پرس‌وجو را با دقت طراحی کرده‌ایم و می‌خواهیم بعداً دوباره از آن استفاده کنیم یا امکان استفاده از آن را برای دیگران فراهم کنیم. در این شرایط می‌توانیم پرس‌وجو را به شکل یک <bdi dir="ltr" class="en">View</bdi> ذخیره کنیم.</p>
+      <div class="definition">
+        <span class="definition__term">View چیست؟</span>
+        <p><bdi dir="ltr" class="en">View</bdi> یک پرس‌وجوی SQL ذخیره‌شده است که هنگام استفاده، مانند یک جدول مجازی در دسترس قرار می‌گیرد. در تعریف معمول View، خود داده‌ها به‌صورت مستقل ذخیره نمی‌شوند؛ بلکه دستور پرس‌وجو ذخیره می‌شود.</p>
+      </div>
+      <p>از آنجا که View پرس‌وجوی اصلی را نگهداری می‌کند، نتایج آن هنگام استفاده بر اساس وضعیت فعلی داده‌های جدول‌های مبنا به دست می‌آیند. بنابراین تغییرات جدید داده‌ها نیز می‌توانند در نتیجه مشاهده‌شده منعکس شوند.</p>
+      <h3>ساخت View</h3>
+      <p>برای ساخت View از ساختار <bdi dir="ltr" class="en">CREATE VIEW</bdi> استفاده می‌کنیم. ابتدا نام View را می‌نویسیم، سپس با <bdi dir="ltr" class="en">AS</bdi> پرس‌وجویی را مشخص می‌کنیم که قرار است ذخیره شود.</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">CREATE VIEW employee_hire_years AS
+SELECT dept_id, year_hired
+FROM employees;</code></pre>
+      </div>
+      <p>اجرای دستور <bdi dir="ltr" class="en">CREATE VIEW</bdi>، خودِ مجموعه نتایج پرس‌وجو را نمایش نمی‌دهد؛ بلکه View را برای استفاده مجدد ایجاد می‌کند.</p>
+      <h3>تمرین: ساخت View برای نویسندگان کتابخانه</h3>
+      <p>می‌خواهیم پرس‌وجوی نویسندگان یکتا را با نام <bdi dir="ltr" class="en">library_authors</bdi> ذخیره کنیم و نام ستون خروجی نیز <bdi dir="ltr" class="en">unique_author</bdi> باشد.</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">CREATE VIEW library_authors AS
+SELECT DISTINCT author AS unique_author
+FROM books;</code></pre>
+      </div>
+      <h3>استفاده از View</h3>
+      <p>پس از ایجاد View، می‌توانیم مانند یک جدول معمولی از آن داده بخوانیم؛ کافی است نام View را پس از <bdi dir="ltr" class="en">FROM</bdi> قرار دهیم:</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT *
+FROM library_authors;</code></pre>
+      </div>
+      <div class="box note">
+        <p>تفاوت اصلی را به خاطر بسپارید: دستور <bdi dir="ltr" class="en">CREATE VIEW</bdi> پرس‌وجو را ذخیره و View را ایجاد می‌کند؛ دستور <bdi dir="ltr" class="en">SELECT</bdi> از View استفاده می‌کند و نتیجه آن را نمایش می‌دهد.</p>
+      </div>
+    </section>
+
+    <section class="section purple" id="flavors">
+      <h2 class="section-title">۷. گونه‌های مختلف SQL (SQL Flavors)</h2>
+      <p>SQL در سامانه‌های مختلف پایگاه داده ممکن است با نسخه‌ها یا گونه‌های متفاوتی ارائه شود. بعضی از این محصولات رایگان و متن‌باز هستند و بعضی دیگر نسخه‌های تجاری یا سازمانی نیز دارند. با وجود تفاوت‌ها، بخش عمده‌ای از واژه‌های کلیدی و ساختارهای اصلی SQL میان این گونه‌ها مشترک است.</p>
+      <p>استانداردهای عمومی SQL توسط سازمان‌های استانداردسازی بین‌المللی و آمریکایی، از جمله <bdi dir="ltr" class="en">ISO</bdi> و <bdi dir="ltr" class="en">ANSI</bdi>، تدوین شده‌اند. تفاوت گونه‌های SQL معمولاً از قابلیت‌های افزوده و جزئیاتی ناشی می‌شود که محصولات مختلف در کنار این مبانی مشترک ارائه می‌کنند.</p>
+      <div class="info-grid">
+        <article class="info-card">
+          <h3><bdi dir="ltr" class="en">PostgreSQL</bdi></h3>
+          <p>یک سامانه مدیریت پایگاه داده رابطه‌ای، رایگان و متن‌باز است. این سامانه ابتدا در دانشگاه کالیفرنیا، برکلی شکل گرفت و پروژه آن با حمایت سازمان پروژه‌های پژوهشی پیشرفته دفاعی آمریکا، <bdi dir="ltr" class="en">DARPA</bdi>، همراه بود.</p>
+        </article>
+        <article class="info-card">
+          <h3><bdi dir="ltr" class="en">SQL Server</bdi></h3>
+          <p>سامانه مدیریت پایگاه داده رابطه‌ای شرکت مایکروسافت است که نسخه‌های رایگان و سازمانی دارد و با دیگر محصولات مایکروسافت سازگاری و هم‌افزایی خوبی دارد. گونه اختصاصی SQL مورد استفاده آن <bdi dir="ltr" class="en">T-SQL</bdi> نام دارد.</p>
+        </article>
+      </div>
+      <div class="box important">
+        <p>نام <bdi dir="ltr" class="en">PostgreSQL</bdi> هم برای اشاره به سامانه پایگاه داده و هم برای اشاره به گونه SQL مورد استفاده در آن به کار می‌رود. در مقابل، <bdi dir="ltr" class="en">T-SQL</bdi> گونه اختصاصی مایکروسافت برای کار با <bdi dir="ltr" class="en">SQL Server</bdi> است.</p>
+      </div>
+      <h3>مقایسه LIMIT در PostgreSQL و TOP در SQL Server</h3>
+      <p>یکی از تفاوت‌های ساده میان این دو گونه، روش محدودکردن تعداد ردیف‌های خروجی است. در <bdi dir="ltr" class="en">PostgreSQL</bdi> از <bdi dir="ltr" class="en">LIMIT</bdi> استفاده می‌کنیم؛ اما در <bdi dir="ltr" class="en">SQL Server</bdi> می‌توانیم از <bdi dir="ltr" class="en">TOP</bdi> پس از <bdi dir="ltr" class="en">SELECT</bdi> استفاده کنیم.</p>
+      <div class="info-grid">
+        <article class="info-card">
+          <h3>PostgreSQL</h3>
+          <div class="code-block" data-lang="sql">
+            <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+            <pre><code class="language-sql">SELECT name, id
+FROM employees
+LIMIT 2;</code></pre>
+          </div>
+        </article>
+        <article class="info-card">
+          <h3>SQL Server</h3>
+          <div class="code-block" data-lang="sql">
+            <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+            <pre><code class="language-sql">SELECT TOP(2) name, id
+FROM employees;</code></pre>
+          </div>
+        </article>
+      </div>
+      <p>در این دو نمونه، هدف یکسان است: انتخاب نام و شناسه کارکنان و محدودکردن خروجی به دو ردیف. تفاوت موردنظر در این مثال، واژه‌ای است که برای محدودکردن تعداد نتایج به کار می‌رود.</p>
+      <div class="box warning">
+        <p>محدودکردن تعداد ردیف‌ها هنگام آزمایش و بررسی کد مفید است؛ زیرا ممکن است یک پرس‌وجو هزاران ردیف برگرداند. با این حال، اگر ترتیب مشخصی برای انتخاب ردیف‌ها لازم باشد، باید آن را جداگانه تعیین کنیم؛ صرف استفاده از <bdi dir="ltr" class="en">LIMIT</bdi> یا <bdi dir="ltr" class="en">TOP</bdi> ترتیب دلخواهی را تضمین نمی‌کند.</p>
+      </div>
+      <h3>کدام گونه SQL را یاد بگیریم؟</h3>
+      <p>اگر محل کار یا سازمانی که قصد همکاری با آن را دارید از سامانه مشخصی مانند <bdi dir="ltr" class="en">Microsoft SQL Server</bdi> استفاده می‌کند، یادگیری همان گونه انتخاب روشنی است. اگر هنوز نمی‌دانید در آینده با کدام ابزار کار خواهید کرد، لازم نیست در شروع بیش از اندازه نگران انتخاب باشید؛ زیرا مبانی و بسیاری از واژه‌های کلیدی مشترک‌اند و سازگاری با گونه دیگر معمولاً با یادگیری چند تفاوت قابل انجام است.</p>
+      <div class="box success">
+        <p>تسلط بر مفاهیم پایه مانند انتخاب ستون‌ها، تعیین جدول، نام مستعار و مقادیر یکتا، مهارتی قابل انتقال میان گونه‌های مختلف SQL ایجاد می‌کند.</p>
+      </div>
+    </section>
+
+    <section class="section green" id="limit">
+      <h2 class="section-title">۸. محدودکردن تعداد نتایج</h2>
+      <p>هنگام بررسی یک جدول بزرگ، ممکن است نخواهیم تمام ردیف‌ها را در هر بار اجرای پرس‌وجو دریافت کنیم. محدودکردن تعداد نتایج کمک می‌کند ابتدا نمونه کوچکی از داده‌ها را ببینیم و کد خود را آزمایش کنیم.</p>
+      <p>در <bdi dir="ltr" class="en">PostgreSQL</bdi> از واژه کلیدی <bdi dir="ltr" class="en">LIMIT</bdi> برای تعیین حداکثر تعداد ردیف‌های خروجی استفاده می‌شود. برای مثال، دستور زیر حداکثر ۱۰ مقدار از ستون <bdi dir="ltr" class="en">genre</bdi> جدول <bdi dir="ltr" class="en">books</bdi> را برمی‌گرداند:</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT genre
+FROM books
+LIMIT 10;</code></pre>
+      </div>
+      <div class="box example">
+        <p>در این پرس‌وجو، <bdi dir="ltr" class="en">SELECT genre</bdi> ستون موردنظر را تعیین می‌کند، <bdi dir="ltr" class="en">FROM books</bdi> جدول منبع را مشخص می‌کند و <bdi dir="ltr" class="en">LIMIT 10</bdi> تعداد ردیف‌های خروجی را به حداکثر ۱۰ محدود می‌سازد.</p>
+      </div>
+      <h3>تبدیل پرس‌وجو از PostgreSQL به SQL Server</h3>
+      <p>اگر بخواهیم پرس‌وجوی بالا را برای <bdi dir="ltr" class="en">SQL Server</bdi> بنویسیم، باید <bdi dir="ltr" class="en">LIMIT 10</bdi> را حذف کنیم و <bdi dir="ltr" class="en">TOP(10)</bdi> را بلافاصله پس از <bdi dir="ltr" class="en">SELECT</bdi> قرار دهیم:</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT TOP(10) genre
+FROM books;</code></pre>
+      </div>
+    </section>
+
+    <section class="section gold" id="summary">
+      <h2 class="section-title">۹. جمع‌بندی جلسه</h2>
+      <div class="key-takeaway">
+        <div class="key-takeaway__icon" aria-hidden="true">🧠</div>
+        <div>
+          <h3>مهم‌ترین نکات این جلسه</h3>
+          <ul>
+            <li><bdi dir="ltr" class="en">SELECT</bdi> ستون‌های موردنیاز را انتخاب می‌کند و <bdi dir="ltr" class="en">FROM</bdi> جدول منبع را مشخص می‌کند.</li>
+            <li>برای انتخاب چند ستون، نام آن‌ها را با کاما جدا می‌کنیم؛ برای انتخاب همه ستون‌ها از <bdi dir="ltr" class="en">*</bdi> استفاده می‌شود.</li>
+            <li><bdi dir="ltr" class="en">AS</bdi> نام مستعار ستون را در خروجی تعیین می‌کند، بدون آنکه نام واقعی فیلد در جدول تغییر کند.</li>
+            <li><bdi dir="ltr" class="en">DISTINCT</bdi> مقدارهای تکراری را حذف می‌کند؛ در انتخاب چند ستون، ترکیب کامل مقادیر یکتا می‌شود.</li>
+            <li><bdi dir="ltr" class="en">View</bdi> پرس‌وجویی ذخیره‌شده است که مانند یک جدول مجازی می‌توان از آن داده خواند.</li>
+            <li><bdi dir="ltr" class="en">PostgreSQL</bdi> و <bdi dir="ltr" class="en">SQL Server</bdi> در مبانی مشترک‌اند، اما در برخی واژه‌ها و قابلیت‌ها تفاوت دارند.</li>
+            <li>برای محدودکردن تعداد نتایج، در PostgreSQL از <bdi dir="ltr" class="en">LIMIT</bdi> و در SQL Server از <bdi dir="ltr" class="en">TOP</bdi> استفاده می‌کنیم.</li>
+          </ul>
+        </div>
+      </div>
+      <p>اکنون می‌توانیم پرس‌وجوهای ساده بنویسیم، ستون‌های موردنیاز را انتخاب کنیم، خروجی را مرتب‌تر و بدون تکرار بسازیم و پرس‌وجوهای پرکاربرد را در قالب View ذخیره کنیم. این مفاهیم پایه‌ای برای یادگیری دستورهای پیشرفته‌تر SQL هستند.</p>
+    </section>
+
+    <section class="section" id="quiz">
+      <h2 class="section-title">📝 آزمون تعاملی پایان جلسه</h2>
+      <p>چهار پرسش زیر مفاهیم کاربرد SQL، سبک نوشتن پرس‌وجوها و تفاوت PostgreSQL و SQL Server را ارزیابی می‌کنند. پس از انتخاب هر پاسخ، بازخورد و پاسخ صحیح نمایش داده می‌شود.</p>
+
+      <section class="quiz-container" data-quiz aria-label="آزمون جلسه دوم SQL">
+        <header class="quiz-header">
+          <div>
+            <strong>آزمون پرس‌وجوهای SQL</strong>
+            <p>۴ پرسش · هر پرسش ۱ امتیاز</p>
+          </div>
+          <span class="quiz-counter" data-quiz-counter>۰ از ۴ سؤال پاسخ داده‌شده</span>
+        </header>
+        <div class="quiz-progress-label">میزان پیشرفت آزمون</div>
+        <div class="quiz-progress" role="progressbar" aria-label="پیشرفت آزمون">
+          <span class="quiz-progress__bar" data-quiz-progress></span>
+        </div>
+
+        <article class="quiz-item" data-type="single_select" data-correct="relational" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۱</span> کدام موقعیت نمونه مناسبی از کاربرد SQL است؟</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="spreadsheet">تمام داده‌های موردنیاز در یک صفحه‌گسترده ساده و بدون ارتباط‌های پیچیده قرار دارند.</button>
+            <button class="quiz-option" type="button" data-value="relational">حجم زیادی از داده‌های مرتبط با بخش‌های مختلف یک کسب‌وکار در پایگاه داده رابطه‌ای نگهداری می‌شوند.</button>
+            <button class="quiz-option" type="button" data-value="missing">داده موردنیاز برای پاسخ به پرسش هنوز وجود ندارد.</button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="third" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۲</span> کدام گزینه پرس‌وجوی زیر را خواناتر کرده و با سبک نگارش توصیه‌شده هماهنگ است؟</h3>
+          <div class="code-block" data-lang="sql">
+            <div class="code-block__header"><span class="code-block__lang"></span></div>
+            <pre><code class="language-sql">SELECT CARD_NUM, TOTAL_FINE from patrons</code></pre>
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="first"><bdi dir="ltr" class="en">SELECT CARD_NUM, TOTAL_FINE FROM PATRONS;</bdi></button>
+            <button class="quiz-option" type="button" data-value="second"><bdi dir="ltr" class="en">select CARD_NUM, TOTAL_FINE from PATRONS;</bdi></button>
+            <button class="quiz-option" type="button" data-value="third"><bdi dir="ltr" class="en">SELECT card_num, total_fine FROM patrons;</bdi></button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="microsoft" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۳</span> کدام عبارت درباره PostgreSQL و SQL Server درست است؟</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="same">PostgreSQL و SQL Server دقیقاً یکسان هستند.</button>
+            <button class="quiz-option" type="button" data-value="microsoft">SQL Server محصول مایکروسافت است و از گونه اختصاصی T-SQL استفاده می‌کند.</button>
+            <button class="quiz-option" type="button" data-value="versions">PostgreSQL فقط نسخه سازمانی دارد و SQL Server کاملاً رایگان و متن‌باز است.</button>
+            <button class="quiz-option" type="button" data-value="reverse">SQL Server از LIMIT و PostgreSQL از TOP استفاده می‌کند.</button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="top" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۴</span> برای تبدیل پرس‌وجوی PostgreSQL زیر به نسخه سازگار با SQL Server چه تغییری لازم است؟</h3>
+          <div class="code-block" data-lang="sql">
+            <div class="code-block__header"><span class="code-block__lang"></span></div>
+            <pre><code class="language-sql">SELECT genre
+FROM books
+LIMIT 10;</code></pre>
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="table">واژه FROM را با TABLE جایگزین کنیم.</button>
+            <button class="quiz-option" type="button" data-value="all">واژه‌های SELECT، FROM و LIMIT را همگی با واژه‌های دیگری جایگزین کنیم.</button>
+            <button class="quiz-option" type="button" data-value="top">عبارت LIMIT را حذف کنیم و TOP(10) را پس از SELECT قرار دهیم.</button>
+            <button class="quiz-option" type="button" data-value="semicolon">LIMIT را با TOP جایگزین کنیم و نقطه‌ویرگول را حذف کنیم.</button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <div class="quiz-actions">
+          <button class="quiz-action quiz-action--secondary quiz-reset" type="button" data-quiz-reset>↻ شروع مجدد آزمون</button>
+        </div>
+        <div class="quiz-result" data-quiz-result>
+          <strong class="quiz-result__score quiz-score" data-quiz-score></strong>
+          <span data-quiz-result-detail></span>
+        </div>
+      </section>
+    </section>
+
+    <nav class="lesson-navigation" aria-label="ناوبری جلسات">
+      <a class="lesson-navigation__link" href="Lesson_01.html">
+        <span><span class="lesson-navigation__label">بازگشت</span><span class="lesson-navigation__title">رفتن به جلسه اول</span></span>
+        <span class="lesson-navigation__arrow" aria-hidden="true">←</span>
+      </a>
+      <a class="lesson-navigation__link" href="#top">
+        <span><span class="lesson-navigation__label">بازگشت</span><span class="lesson-navigation__title">ابتدای صفحه</span></span>
+        <span class="lesson-navigation__arrow" aria-hidden="true">↑</span>
+      </a>
+      <a class="lesson-navigation__link lesson-navigation__link--next" href="Lesson_03.html">
+        <span><span class="lesson-navigation__label">ادامه مسیر</span><span class="lesson-navigation__title">رفتن به جلسه سوم</span></span>
+        <span class="lesson-navigation__arrow" aria-hidden="true">→</span>
+      </a>
+    </nav>
+
+    <footer class="site-footer">
+      <p>© MATCUB · SQL Learning Notes</p>
+      <p><a class="inline-link" href="#top">بازگشت به ابتدای صفحه</a></p>
+    </footer>
+  </main>
+</body>
+</html>

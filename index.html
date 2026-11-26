@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head><style data-atlas-ui-policy="v3">
+[data-testid="accounts-profile-button"],
+[data-testid="profile-menu-button"],
+.accounts-profile-button,
+[aria-label="Open profile menu"],
+[data-testid*="history-item"][data-testid*="options"],
+[aria-label="Open conversation options"],
+[data-testid="conversation-options-button"],
+[data-sidebar-item="true"] .trailing button.__menu-item-trailing-btn,
+[data-sidebar-item="true"] .trailing-pair button.__menu-item-trailing-btn,
+[data-sidebar-item="true"] .trailing [data-trailing-button],
+[data-sidebar-item="true"] .trailing-pair [data-trailing-button],
+.trailing.highlight button.__menu-item-trailing-btn,
+.trailing.highlight [data-trailing-button],
+button[aria-label="Show project details"],
+button[aria-label*="project details" i],
+[data-testid*="delete" i],
+[aria-label*="delete" i],
+[role="menuitem"][data-testid*="delete" i],
+a[href*="/settings"],
+[data-testid="settings-button"],
+[data-atlas-ui-restricted="true"] {
+	display: none !important;
+	visibility: hidden !important;
+	pointer-events: none !important;
+}
+button.__menu-item-trailing-btn[aria-label="New project"],
+button.__menu-item-trailing-btn[aria-label="Organize chats"],
+button[data-trailing-button][aria-label="New project"],
+button[data-trailing-button][aria-label="Organize chats"] {
+	display: inline-flex !important;
+	visibility: visible !important;
+	pointer-events: auto !important;
+}
+#atlas-logout-container {
+	position: fixed;
+	bottom: var(--atlas-sidebar-bottom, 0);
+	left: var(--atlas-sidebar-left, 0);
+	width: var(--atlas-sidebar-width, 0);
+	z-index: 2147483647;
+	padding: 8px 10px max(12px, env(safe-area-inset-bottom));
+	box-sizing: border-box;
+	pointer-events: none;
+}
+#atlas-logout-container[data-visible="false"] { display: none !important; }
+#atlas-logout-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	padding: 10px 14px;
+	border: 0;
+	border-radius: 12px;
+	background: linear-gradient(135deg, #fff, #f8f8f8);
+	color: #141313;
+	box-shadow: 0 4px 15px rgb(0 0 0 / 30%);
+	cursor: pointer;
+	font: 600 14px ui-sans-serif, system-ui, sans-serif;
+	pointer-events: auto;
+}
+#atlas-logout-button:hover { transform: translateY(-2px); }
+#atlas-logout-button svg { width: 18px; height: 18px; }
+</style><script data-atlas-ui-policy-runtime="v3">(()=>{if(window.__atlasUiPolicyV3)return;window.__atlasUiPolicyV3=true;const allowed=new Set(["new project","organize chats"]),selector='[role="menuitem"],[role="button"],button',restrict=root=>{const nodes=[];if(root&&root.nodeType===Node.ELEMENT_NODE&&root.matches&&root.matches(selector))nodes.push(root);if(root&&root.querySelectorAll)root.querySelectorAll(selector).forEach(node=>nodes.push(node));nodes.forEach(node=>{if(node.closest("#atlas-logout-container"))return;const label=(node.getAttribute("aria-label")||"").trim().toLowerCase();if(allowed.has(label))return;const text=(node.textContent||"").replace(/\s+/g," ").trim().toLowerCase();if(/\b(delete|remove)\b/.test(text)||text.includes("حذف"))node.dataset.atlasUiRestricted="true"})},sidebar=()=>{const selectors=['[data-testid="sidebar"]','[data-testid="left-sidebar"]','[data-testid="conversation-sidebar"]','[data-sidebar]','aside','nav[aria-label*="chat" i]','nav[aria-label*="navigation" i]'],mobile=matchMedia("(max-width: 768px)").matches,candidates=[];selectors.forEach((value,index)=>{try{document.querySelectorAll(value).forEach(element=>{if(!(element instanceof HTMLElement)||candidates.some(item=>item.element===element))return;const rect=element.getBoundingClientRect(),style=getComputedStyle(element),visible=rect.width>=48&&rect.width<=Math.min(440,innerWidth)&&rect.height>120&&rect.right>0&&rect.left<innerWidth&&rect.bottom>0&&rect.top<innerHeight&&style.display!=="none"&&style.visibility!=="hidden"&&parseFloat(style.opacity||"1")>0;if(!visible||(mobile&&rect.width<180))return;candidates.push({element,rect,score:(selectors.length-index)*100000-Math.max(0,rect.left)*100+Math.min(rect.height,innerHeight)+Math.min(rect.width,400)})})}catch{}});candidates.sort((a,b)=>b.score-a.score);return candidates[0]||null},ensureLogout=()=>{if(!document.body)return;let container=document.getElementById("atlas-logout-container");if(!container){container=document.createElement("div");container.id="atlas-logout-container";container.innerHTML='<button id="atlas-logout-button" type="button" aria-label="خروج از سامانه"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span>خروج</span></button>';container.querySelector("button").addEventListener("click",()=>{if(confirm("آیا مطمئن هستید که می‌خواهید خارج شوید؟"))location.assign("/logout")});document.body.appendChild(container)}if(container.parentElement!==document.body)document.body.appendChild(container);const host=sidebar();if(!host){container.dataset.visible="false";return}container.dataset.visible="true";container.style.setProperty("--atlas-sidebar-left",host.rect.left+"px");container.style.setProperty("--atlas-sidebar-width",Math.max(48,Math.min(host.rect.width,innerWidth))+"px");container.style.setProperty("--atlas-sidebar-bottom",Math.max(0,innerHeight-host.rect.bottom)+"px")},start=()=>{if(!document.body)return;restrict(document.body);ensureLogout();let queued=false;const pending=new Set,schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{pending.forEach(restrict);pending.clear();ensureLogout();queued=false})};new MutationObserver(records=>{let changed=false;records.forEach(record=>{if(record.target instanceof Element&&record.target.closest("#atlas-logout-container"))return;changed=true;record.addedNodes.forEach(node=>{if(node.nodeType===Node.ELEMENT_NODE)pending.add(node)})});if(changed)schedule()}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","style","hidden","aria-expanded","aria-hidden","data-state"]});addEventListener("resize",schedule,{passive:true});document.addEventListener("transitionend",schedule,true)};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",start,{once:true}):start()})();</script><script data-atlas-runtime="v3">(()=>{const h=new Set(["chatgpt.com","chat.openai.com"]),r=u=>{try{const s=typeof u==="string"?u:u instanceof URL?u.href:null;if(!s)return u;const x=new URL(s,location.href);if(!h.has(x.hostname))return u;x.protocol=x.protocol==="wss:"||x.protocol==="ws:"?(location.protocol==="https:"?"wss:":"ws:"):location.protocol;x.host=location.host;return x.href}catch{return u}};if(window.fetch){const f=window.fetch;window.fetch=new Proxy(f,{apply(t,a,g){const i=g[0];if(i instanceof Request){const n=r(i.url);if(n!==i.url)g[0]=new Request(n,i)}else g[0]=r(i);return Reflect.apply(t,a,g)}})}if(window.XMLHttpRequest){const o=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u,...a){return o.call(this,m,r(u),...a)}}if(window.WebSocket){const W=window.WebSocket;window.WebSocket=new Proxy(W,{construct(t,a,n){a[0]=r(a[0]);return Reflect.construct(t,a,n)}})}if(window.EventSource){const E=window.EventSource;window.EventSource=new Proxy(E,{construct(t,a,n){a[0]=r(a[0]);return Reflect.construct(t,a,n)}})}if(navigator.sendBeacon){const b=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=new Proxy(b,{apply(t,a,g){g[0]=r(g[0]);return Reflect.apply(t,a,g)}})}})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="نقشه راه تحلیل‌گر داده با SQL؛ شامل ۱۰ دوره آموزشی و ۳ پروژه عملی از مبانی پایگاه داده تا تحلیل و ارائه بینش‌های داده‌محور.">
+  <meta name="theme-color" content="#071a2d">
+  <title>تحلیل‌گر داده با SQL | نقشه راه MATCUB</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body id="top">
+  <main class="container">
+
+    <nav class="profile-socials" aria-label="شبکه‌های اجتماعی MATCUB">
+      <a class="profile-socials__link profile-socials__link--instagram"
+         href="https://www.instagram.com/matcub_official/" target="_blank" rel="noopener noreferrer">
+        <span class="profile-socials__icon" aria-hidden="true">◎</span>
+        <span>Instagram</span>
+      </a>
+      <a class="profile-socials__link profile-socials__link--telegram"
+         href="https://t.me/matcub" target="_blank" rel="noopener noreferrer">
+        <span class="profile-socials__icon" aria-hidden="true">➤</span>
+        <span>Telegram</span>
+      </a>
+      <a class="profile-socials__link profile-socials__link--linkedin"
+         href="https://www.linkedin.com/in/mohammadfallah1373/" target="_blank" rel="noopener noreferrer">
+        <span class="profile-socials__icon profile-socials__icon--linkedin" aria-hidden="true">in</span>
+        <span>LinkedIn</span>
+      </a>
+    </nav>
+
+    <header class="topbar">
+      <a class="topbar__brand" href="#top">MATCUB · مسیر یادگیری</a>
+      <nav class="topbar__links" aria-label="ناوبری صفحه">
+        <a href="#overview">معرفی مسیر</a>
+        <a href="#roadmap">دوره‌ها</a>
+        <a href="#projects">پروژه‌ها</a>
+      </nav>
+    </header>
+
+    <header class="hero" id="overview">
+      <div class="hero-content">
+        <div class="hero-label">🧭 نقشه راه یادگیری و مهارت‌آموزی</div>
+        <h1>مسیر تبدیل‌شدن به <span>تحلیل‌گر داده با <bdi dir="ltr" class="en">SQL</bdi></span></h1>
+        <p class="hero-subtitle">
+          از شناخت پایگاه داده و نوشتن پرس‌وجوهای اولیه شروع می‌کنید؛ سپس به تحلیل داده،
+          کار با توابع و تحلیل‌های آماری می‌رسید و در پایان یاد می‌گیرید نتایج را به شکلی
+          روشن و اثرگذار ارائه کنید.
+        </p>
+        <div class="hero-badge">بدون نیاز به تجربه قبلی برنامه‌نویسی</div>
+        <div class="buttons">
+          <a class="btn btn-green" href="Lesson_01.html">شروع یادگیری ←</a>
+          <a class="btn btn-blue" href="#roadmap">مشاهده نقشه راه</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="lesson-meta" aria-label="اطلاعات کلی مسیر">
+      <span class="lesson-meta__item">📚 <strong>۱۰ دوره آموزشی</strong></span>
+      <span class="lesson-meta__item">🧪 <strong>۳ پروژه عملی</strong></span>
+      <span class="lesson-meta__item">⏱️ <strong>حدود ۳۹ ساعت</strong></span>
+      <span class="lesson-meta__item">🎯 <strong>سطح شروع: مقدماتی</strong></span>
+    </div>
+
+    <section class="learning-intro" aria-labelledby="intro-title">
+      <div class="learning-intro__eyebrow">✨ درباره این مسیر</div>
+      <h2 id="intro-title">از داده خام تا بینش قابل ارائه</h2>
+      <p>
+        این مسیر آموزشی مجموعه‌ای پیوسته از دوره‌ها و پروژه‌هاست که مهارت‌های موردنیاز
+        برای کار با پایگاه داده، استخراج و آماده‌سازی اطلاعات، تحلیل داده و انتقال نتیجه
+        به دیگران را به‌تدریج آموزش می‌دهد. درس‌ها در سراسر مسیر شماره‌گذاری پیوسته دارند؛
+        در عین حال، برای درک بهتر نقشه راه، محتوای آموزشی در ادامه بر اساس دوره‌های اصلی
+        دسته‌بندی شده است.
+      </p>
+    </section>
+
+    <section class="section blue" id="roadmap">
+      <h2 class="section-title">🗺️ نقشه راه آموزشی</h2>
+      <p>
+        مسیر را به ترتیب زیر دنبال کنید. هر دوره بر مهارت‌های دوره‌های قبل تکیه می‌کند
+        و پروژه‌ها فرصت به‌کارگیری آموخته‌ها در مسئله‌های واقعی‌تر را فراهم می‌کنند.
+      </p>
+
+      <div class="path-flow" aria-label="مراحل اصلی مسیر یادگیری">
+        <div class="path-flow__step">
+          <strong>مبانی <bdi dir="ltr" class="en">SQL</bdi></strong>
+          <p>شناخت پایگاه داده و نوشتن پرس‌وجو</p>
+        </div>
+        <div class="path-flow__step">
+          <strong>تحلیل و ترکیب داده</strong>
+          <p>فیلتر، تجمیع، اتصال و تبدیل داده‌ها</p>
+        </div>
+        <div class="path-flow__step">
+          <strong>تحلیل پیشرفته</strong>
+          <p>توابع پنجره‌ای، آمار و تحلیل اکتشافی</p>
+        </div>
+        <div class="path-flow__step">
+          <strong>ارائه بینش</strong>
+          <p>تصورسازی، روایت داده و ارتباط مؤثر</p>
+        </div>
+      </div>
+
+      <div class="concept-grid">
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">01</div>
+          <h3>دوره اول: <bdi dir="ltr" class="en">Introduction to SQL</bdi></h3>
+          <p>آشنایی با ساختار پایگاه داده رابطه‌ای و اصول نخستین استخراج اطلاعات.</p>
+          <ul>
+            <li>پایگاه داده‌های رابطه‌ای</li>
+            <li>پرس‌وجو و بازیابی داده</li>
+          </ul>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">02</div>
+          <h3>دوره دوم: <bdi dir="ltr" class="en">Intermediate SQL</bdi></h3>
+          <p>یادگیری ابزارهای اصلی برای انتخاب، فیلترکردن، خلاصه‌سازی و مرتب‌سازی داده‌ها.</p>
+          <ul>
+            <li>انتخاب داده‌ها</li>
+            <li>فیلترکردن رکوردها</li>
+            <li>توابع تجمیعی</li>
+            <li>مرتب‌سازی و گروه‌بندی</li>
+          </ul>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">03</div>
+          <h3>دوره سوم: <bdi dir="ltr" class="en">Joining Data in SQL</bdi></h3>
+          <p>ترکیب اطلاعات چند جدول و ساخت مجموعه‌داده‌های معنادارتر.</p>
+          <ul>
+            <li>اتصال‌های داخلی</li>
+            <li>اتصال‌های خارجی، متقاطع و خوداتصال</li>
+            <li>عملگرهای مجموعه‌ای</li>
+            <li>زیرپرس‌وجوها</li>
+          </ul>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">04</div>
+          <h3>دوره چهارم: <bdi dir="ltr" class="en">Data Manipulation in SQL</bdi></h3>
+          <p>تبدیل و دسته‌بندی داده‌ها و ساخت پرس‌وجوهای پیچیده‌تر.</p>
+          <ul>
+            <li>عبارت‌های شرطی <bdi dir="ltr" class="en">CASE</bdi></li>
+            <li>زیرپرس‌وجوهای ساده و هم‌بسته</li>
+            <li>پرس‌وجوهای تو‌در‌تو و <bdi dir="ltr" class="en">CTE</bdi></li>
+            <li>توابع پنجره‌ای</li>
+          </ul>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">05</div>
+          <h3>دوره پنجم: <bdi dir="ltr" class="en">PostgreSQL Summary Stats and Window Functions</bdi></h3>
+          <p>گسترش تحلیل با توابع پنجره‌ای و محاسبات آماری پیشرفته‌تر.</p>
+          <ul>
+            <li>مبانی توابع پنجره‌ای</li>
+            <li>بازیابی، رتبه‌بندی و صفحه‌بندی</li>
+            <li>تجمیع پنجره‌ای و چارچوب‌ها</li>
+            <li>تبدیل داده و خلاصه‌سازی چندسطحی</li>
+          </ul>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">06</div>
+          <h3>دوره ششم: <bdi dir="ltr" class="en">Functions for Manipulating Data in PostgreSQL</bdi></h3>
+          <p>کار با انواع داده و توابع داخلی برای پردازش متن، عدد و زمان.</p>
+          <ul>
+            <li>انواع داده متداول</li>
+            <li>توابع و عملگرهای تاریخ و زمان</li>
+            <li>پردازش و دست‌کاری متن</li>
+            <li>جست‌وجوی تمام‌متن و افزونه‌ها</li>
+          </ul>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">07</div>
+          <h3>دوره هفتم: <bdi dir="ltr" class="en">Introduction to Statistics</bdi></h3>
+          <p>یادگیری مبانی آماری برای توصیف داده و ارزیابی رابطه‌ها و نتایج.</p>
+          <ul>
+            <li>آمار توصیفی و شاخص‌های خلاصه</li>
+            <li>احتمال و توزیع‌ها</li>
+            <li>توزیع نرمال و قضیه حد مرکزی</li>
+            <li>همبستگی و آزمون فرضیه</li>
+          </ul>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">08</div>
+          <h3>دوره هشتم: <bdi dir="ltr" class="en">Exploratory Data Analysis in SQL</bdi></h3>
+          <p>کاوش پایگاه داده و بررسی کیفیت، الگوها و ویژگی‌های داده‌های واقعی.</p>
+          <ul>
+            <li>شناخت جداول و ارتباطات پایگاه داده</li>
+            <li>خلاصه‌سازی داده‌های عددی</li>
+            <li>کاوش داده‌های دسته‌ای و متنی</li>
+            <li>تحلیل تاریخ‌ها و زمان‌مهرها</li>
+          </ul>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">09</div>
+          <h3>دوره نهم: <bdi dir="ltr" class="en">Understanding Data Visualization</bdi></h3>
+          <p>انتخاب نمودار مناسب و تفسیر درست الگوها و روابط موجود در داده.</p>
+          <ul>
+            <li>تصورسازی توزیع‌ها</li>
+            <li>نمایش و تحلیل دو متغیر</li>
+            <li>استفاده از رنگ و شکل</li>
+            <li>شناخت و پیشگیری از خطاهای نموداری</li>
+          </ul>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">10</div>
+          <h3>دوره دهم: <bdi dir="ltr" class="en">Data Communication Concepts</bdi></h3>
+          <p>تبدیل نتایج تحلیل به پیام روشن و ارائه‌ای اثرگذار برای مخاطبان.</p>
+          <ul>
+            <li>داستان‌گویی با داده</li>
+            <li>آماده‌سازی برای انتقال نتایج</li>
+            <li>ساختاردهی گزارش‌های مکتوب</li>
+            <li>طراحی و ارائه شفاهی</li>
+          </ul>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="section green" id="projects">
+      <h2 class="section-title">🧪 پروژه‌های عملی مسیر</h2>
+      <p>
+        سه پروژه در نقاط مختلف مسیر قرار گرفته‌اند تا مهارت‌های آموخته‌شده را در
+        سناریوهای کاربردی به کار بگیرید.
+      </p>
+
+      <div class="concept-grid">
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">P1</div>
+          <h3><bdi dir="ltr" class="en">Analyzing Students' Mental Health</bdi></h3>
+          <p>
+            بررسی داده‌های مربوط به سلامت روان دانشجویان بین‌المللی و کاوش عواملی
+            که ممکن است با تجربه تحصیل در خارج از کشور ارتباط داشته باشند.
+          </p>
+          <p><strong>محورهای کار:</strong> انجام محاسبات، فیلتر و گروه‌بندی داده‌ها، مرتب‌سازی رکوردها.</p>
+          <span class="badge green">پس از دوره دوم</span>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">P2</div>
+          <h3><bdi dir="ltr" class="en">Data-Driven Decision Making in SQL</bdi></h3>
+          <p>
+            تحلیل اطلاعات یک کسب‌وکار اجاره آنلاین فیلم برای شناخت ترجیحات مشتریان،
+            میزان تعامل و روند فروش و پشتیبانی از تصمیم‌گیری داده‌محور.
+          </p>
+          <p><strong>محورهای کار:</strong> هوش تجاری، پرس‌وجوهای ساده و پیشرفته و تحلیل‌های <bdi dir="ltr" class="en">OLAP</bdi>.</p>
+          <span class="badge green">پس از دوره هشتم</span>
+        </article>
+
+        <article class="concept-card">
+          <div class="concept-card__icon" aria-hidden="true">P3</div>
+          <h3><bdi dir="ltr" class="en">Analyzing Motorcycle Part Sales</bdi></h3>
+          <p>
+            تحلیل درآمد خالص یک شرکت فروش قطعات موتورسیکلت و بررسی عملکرد
+            خطوط محصول در بازه‌های زمانی و انبارهای مختلف.
+          </p>
+          <p><strong>محور کار:</strong> ساخت پرس‌وجو برای محاسبه و تفکیک درآمد خالص.</p>
+          <span class="badge green">پروژه پایانی مسیر</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="learning-intro" aria-labelledby="outcome-title">
+      <div class="learning-intro__eyebrow">🎯 دستاورد مسیر</div>
+      <h2 id="outcome-title">در پایان این مسیر چه چیزی به دست می‌آورید؟</h2>
+      <p>
+        توانایی کار با داده‌های ذخیره‌شده در پایگاه داده، نوشتن و ترکیب پرس‌وجوها،
+        پاک‌سازی و کاوش اطلاعات، انجام تحلیل‌های آماری پایه، انتخاب نمودار مناسب
+        و انتقال نتیجه به زبان قابل‌فهم برای تصمیم‌گیرندگان.
+      </p>
+    </section>
+
+    <section class="section gold" id="start">
+      <h2 class="section-title">🚀 آماده شروع هستید؟</h2>
+      <p>
+        یادگیری را از اولین درس آغاز کنید و مرحله‌به‌مرحله در مسیر تحلیل داده پیش بروید.
+        شماره درس‌ها در کل مسیر پیوسته است و دسته‌بندی دوره‌ها فقط برای نمایش نقشه راه به کار می‌رود.
+      </p>
+      <div class="buttons">
+        <a class="btn btn-green" href="Lesson_01.html">ورود به درس اول</a>
+        <a class="btn btn-dark" href="#top">بازگشت به ابتدای صفحه ↑</a>
+      </div>
+    </section>
+
+    <section class="social" aria-label="همراهی با MATCUB">
+      <h2>همراه مسیر یادگیری MATCUB باشید</h2>
+      <p>برای مشاهده محتوای آموزشی و مطالب تکمیلی، شبکه‌های اجتماعی را دنبال کنید.</p>
+      <div class="buttons">
+        <a class="btn telegram" href="https://t.me/matcub" target="_blank" rel="noopener noreferrer">عضویت در تلگرام</a>
+        <a class="btn instagram" href="https://www.instagram.com/matcub_official/" target="_blank" rel="noopener noreferrer">مشاهده اینستاگرام</a>
+        <a class="btn btn-blue" href="https://www.linkedin.com/in/mohammadfallah1373/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>© MATCUB · تحلیل‌گر داده با SQL</p>
+      <p><a class="inline-link" href="#top">بازگشت به ابتدای صفحه</a></p>
+    </footer>
+
+  </main>
+</body>
+</html>

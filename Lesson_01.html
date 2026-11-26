@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head><style data-atlas-ui-policy="v3">
+[data-testid="accounts-profile-button"],
+[data-testid="profile-menu-button"],
+.accounts-profile-button,
+[aria-label="Open profile menu"],
+[data-testid*="history-item"][data-testid*="options"],
+[aria-label="Open conversation options"],
+[data-testid="conversation-options-button"],
+[data-sidebar-item="true"] .trailing button.__menu-item-trailing-btn,
+[data-sidebar-item="true"] .trailing-pair button.__menu-item-trailing-btn,
+[data-sidebar-item="true"] .trailing [data-trailing-button],
+[data-sidebar-item="true"] .trailing-pair [data-trailing-button],
+.trailing.highlight button.__menu-item-trailing-btn,
+.trailing.highlight [data-trailing-button],
+button[aria-label="Show project details"],
+button[aria-label*="project details" i],
+[data-testid*="delete" i],
+[aria-label*="delete" i],
+[role="menuitem"][data-testid*="delete" i],
+a[href*="/settings"],
+[data-testid="settings-button"],
+[data-atlas-ui-restricted="true"] {
+	display: none !important;
+	visibility: hidden !important;
+	pointer-events: none !important;
+}
+button.__menu-item-trailing-btn[aria-label="New project"],
+button.__menu-item-trailing-btn[aria-label="Organize chats"],
+button[data-trailing-button][aria-label="New project"],
+button[data-trailing-button][aria-label="Organize chats"] {
+	display: inline-flex !important;
+	visibility: visible !important;
+	pointer-events: auto !important;
+}
+#atlas-logout-container {
+	position: fixed;
+	bottom: var(--atlas-sidebar-bottom, 0);
+	left: var(--atlas-sidebar-left, 0);
+	width: var(--atlas-sidebar-width, 0);
+	z-index: 2147483647;
+	padding: 8px 10px max(12px, env(safe-area-inset-bottom));
+	box-sizing: border-box;
+	pointer-events: none;
+}
+#atlas-logout-container[data-visible="false"] { display: none !important; }
+#atlas-logout-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	padding: 10px 14px;
+	border: 0;
+	border-radius: 12px;
+	background: linear-gradient(135deg, #fff, #f8f8f8);
+	color: #141313;
+	box-shadow: 0 4px 15px rgb(0 0 0 / 30%);
+	cursor: pointer;
+	font: 600 14px ui-sans-serif, system-ui, sans-serif;
+	pointer-events: auto;
+}
+#atlas-logout-button:hover { transform: translateY(-2px); }
+#atlas-logout-button svg { width: 18px; height: 18px; }
+</style><script data-atlas-ui-policy-runtime="v3">(()=>{if(window.__atlasUiPolicyV3)return;window.__atlasUiPolicyV3=true;const allowed=new Set(["new project","organize chats"]),selector='[role="menuitem"],[role="button"],button',restrict=root=>{const nodes=[];if(root&&root.nodeType===Node.ELEMENT_NODE&&root.matches&&root.matches(selector))nodes.push(root);if(root&&root.querySelectorAll)root.querySelectorAll(selector).forEach(node=>nodes.push(node));nodes.forEach(node=>{if(node.closest("#atlas-logout-container"))return;const label=(node.getAttribute("aria-label")||"").trim().toLowerCase();if(allowed.has(label))return;const text=(node.textContent||"").replace(/\s+/g," ").trim().toLowerCase();if(/\b(delete|remove)\b/.test(text)||text.includes("حذف"))node.dataset.atlasUiRestricted="true"})},sidebar=()=>{const selectors=['[data-testid="sidebar"]','[data-testid="left-sidebar"]','[data-testid="conversation-sidebar"]','[data-sidebar]','aside','nav[aria-label*="chat" i]','nav[aria-label*="navigation" i]'],mobile=matchMedia("(max-width: 768px)").matches,candidates=[];selectors.forEach((value,index)=>{try{document.querySelectorAll(value).forEach(element=>{if(!(element instanceof HTMLElement)||candidates.some(item=>item.element===element))return;const rect=element.getBoundingClientRect(),style=getComputedStyle(element),visible=rect.width>=48&&rect.width<=Math.min(440,innerWidth)&&rect.height>120&&rect.right>0&&rect.left<innerWidth&&rect.bottom>0&&rect.top<innerHeight&&style.display!=="none"&&style.visibility!=="hidden"&&parseFloat(style.opacity||"1")>0;if(!visible||(mobile&&rect.width<180))return;candidates.push({element,rect,score:(selectors.length-index)*100000-Math.max(0,rect.left)*100+Math.min(rect.height,innerHeight)+Math.min(rect.width,400)})})}catch{}});candidates.sort((a,b)=>b.score-a.score);return candidates[0]||null},ensureLogout=()=>{if(!document.body)return;let container=document.getElementById("atlas-logout-container");if(!container){container=document.createElement("div");container.id="atlas-logout-container";container.innerHTML='<button id="atlas-logout-button" type="button" aria-label="خروج از سامانه"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span>خروج</span></button>';container.querySelector("button").addEventListener("click",()=>{if(confirm("آیا مطمئن هستید که می‌خواهید خارج شوید؟"))location.assign("/logout")});document.body.appendChild(container)}if(container.parentElement!==document.body)document.body.appendChild(container);const host=sidebar();if(!host){container.dataset.visible="false";return}container.dataset.visible="true";container.style.setProperty("--atlas-sidebar-left",host.rect.left+"px");container.style.setProperty("--atlas-sidebar-width",Math.max(48,Math.min(host.rect.width,innerWidth))+"px");container.style.setProperty("--atlas-sidebar-bottom",Math.max(0,innerHeight-host.rect.bottom)+"px")},start=()=>{if(!document.body)return;restrict(document.body);ensureLogout();let queued=false;const pending=new Set,schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{pending.forEach(restrict);pending.clear();ensureLogout();queued=false})};new MutationObserver(records=>{let changed=false;records.forEach(record=>{if(record.target instanceof Element&&record.target.closest("#atlas-logout-container"))return;changed=true;record.addedNodes.forEach(node=>{if(node.nodeType===Node.ELEMENT_NODE)pending.add(node)})});if(changed)schedule()}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","style","hidden","aria-expanded","aria-hidden","data-state"]});addEventListener("resize",schedule,{passive:true});document.addEventListener("transitionend",schedule,true)};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",start,{once:true}):start()})();</script><script data-atlas-runtime="v3">(()=>{const h=new Set(["chatgpt.com","chat.openai.com"]),r=u=>{try{const s=typeof u==="string"?u:u instanceof URL?u.href:null;if(!s)return u;const x=new URL(s,location.href);if(!h.has(x.hostname))return u;x.protocol=x.protocol==="wss:"||x.protocol==="ws:"?(location.protocol==="https:"?"wss:":"ws:"):location.protocol;x.host=location.host;return x.href}catch{return u}};if(window.fetch){const f=window.fetch;window.fetch=new Proxy(f,{apply(t,a,g){const i=g[0];if(i instanceof Request){const n=r(i.url);if(n!==i.url)g[0]=new Request(n,i)}else g[0]=r(i);return Reflect.apply(t,a,g)}})}if(window.XMLHttpRequest){const o=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u,...a){return o.call(this,m,r(u),...a)}}if(window.WebSocket){const W=window.WebSocket;window.WebSocket=new Proxy(W,{construct(t,a,n){a[0]=r(a[0]);return Reflect.construct(t,a,n)}})}if(window.EventSource){const E=window.EventSource;window.EventSource=new Proxy(E,{construct(t,a,n){a[0]=r(a[0]);return Reflect.construct(t,a,n)}})}if(navigator.sendBeacon){const b=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=new Proxy(b,{apply(t,a,g){g[0]=r(g[0]);return Reflect.apply(t,a,g)}})}})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="درسنامه جلسه اول SQL؛ آشنایی با پایگاه داده، جدول‌ها، ساختار رابطه‌ای، سرورها و انواع داده.">
+  <meta name="theme-color" content="#071a2d">
+  <title>Lesson_01 | آشنایی با پایگاه داده‌ها و ساختار آن‌ها</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="quiz-engine.js" defer></script>
+  <script src="syntax-highlighter.js" defer></script>
+</head>
+<body id="top">
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+
+  <main class="container">
+    <nav class="profile-socials" aria-label="شبکه‌های اجتماعی">
+      <a class="profile-socials__link profile-socials__link--instagram" href="https://www.instagram.com/matcub_official/" target="_blank" rel="noopener noreferrer">
+        <span class="profile-socials__icon" aria-hidden="true">◎</span><span>Instagram</span>
+      </a>
+      <a class="profile-socials__link profile-socials__link--telegram" href="https://t.me/matcub" target="_blank" rel="noopener noreferrer">
+        <span class="profile-socials__icon" aria-hidden="true">➤</span><span>Telegram</span>
+      </a>
+      <a class="profile-socials__link profile-socials__link--linkedin" href="https://www.linkedin.com/in/mohammadfallah1373/" target="_blank" rel="noopener noreferrer">
+        <span class="profile-socials__icon profile-socials__icon--linkedin" aria-hidden="true">in</span><span>LinkedIn</span>
+      </a>
+    </nav>
+
+    <header class="topbar">
+      <a class="topbar__brand" href="#top">MATCUB · SQL Learning</a>
+      <nav class="topbar__links" aria-label="ناوبری صفحه">
+        <a href="#overview">معرفی</a>
+        <a href="#database">پایگاه داده</a>
+        <a href="#tables">جدول‌ها</a>
+        <a href="#schema">ساختار و انواع داده</a>
+        <a href="#quiz">آزمون</a>
+      </nav>
+    </header>
+
+    <header class="hero" id="overview">
+      <div class="hero-content">
+        <div class="hero-label">🗄️ جلسه اول · مبانی پایگاه داده</div>
+        <h1>آشنایی با <span>پایگاه داده‌ها</span></h1>
+        <p class="hero-subtitle">در این جلسه یاد می‌گیریم داده‌ها چگونه در پایگاه داده ذخیره و سازمان‌دهی می‌شوند، جدول‌ها چه ساختاری دارند و ارتباط میان جدول‌ها چگونه شکل می‌گیرد. همچنین با سرورها، انواع داده و شِمای پایگاه داده آشنا می‌شویم.</p>
+        <div class="hero-badge">SQL · Databases · Tables · Data Types</div>
+      </div>
+    </header>
+
+    <div class="lesson-meta" aria-label="اطلاعات درس">
+      <span class="lesson-meta__item">📘 <strong>Lesson_01</strong></span>
+      <span class="lesson-meta__item">🎯 سطح: <strong>مقدماتی</strong></span>
+      <span class="lesson-meta__item">⏱️ زمان مطالعه: <strong>حدود ۱۲ دقیقه</strong></span>
+      <span class="lesson-meta__item">🧪 تمرین: <strong>آزمون تعاملی</strong></span>
+    </div>
+    <div class="badges" aria-label="موضوعات درس">
+      <span class="badge gold">Database</span>
+      <span class="badge green">Tables</span>
+      <span class="badge blue">Relationships</span>
+      <span class="badge purple">Data Types</span>
+      <span class="badge orange">SQL Basics</span>
+    </div>
+
+    <section class="learning-intro" id="intro" aria-labelledby="intro-title">
+      <div class="learning-intro__eyebrow">✨ مسیر یادگیری</div>
+      <h2 id="intro-title">در پایان این جلسه چه چیزهایی یاد می‌گیریم؟</h2>
+      <p>پیش از نوشتن دستورهای SQL، باید بدانیم داده‌ها در چه ساختاری نگهداری می‌شوند. شناخت اجزای پایگاه داده باعث می‌شود هنگام خواندن یا تحلیل داده‌ها، بدانیم هر مقدار به کدام جدول و ستون تعلق دارد و جدول‌ها چگونه به یکدیگر مرتبط‌اند.</p>
+      <ul class="learning-objectives">
+        <li>تعریف پایگاه داده و کاربرد زبان SQL</li>
+        <li>شناخت جدول، رکورد، فیلد، سطر و ستون</li>
+        <li>درک پایگاه داده رابطه‌ای و ارتباط بین جدول‌ها</li>
+        <li>انتخاب شناسه یکتا و نام‌گذاری اصولی جدول‌ها و فیلدها</li>
+        <li>آشنایی با سرورها، انواع داده و شِمای پایگاه داده</li>
+      </ul>
+    </section>
+
+    <nav class="toc" aria-label="فهرست مطالب">
+      <h2>📑 فهرست مطالب</h2>
+      <ol>
+        <li><a href="#database">پایگاه داده و زبان SQL</a></li>
+        <li><a href="#tables">جدول‌ها، سطرها و ستون‌ها</a></li>
+        <li><a href="#relational">پایگاه داده رابطه‌ای</a></li>
+        <li><a href="#naming">نام‌گذاری و شناسه یکتا</a></li>
+        <li><a href="#servers">سرورها و محل ذخیره‌سازی داده</a></li>
+        <li><a href="#data-types">انواع داده</a></li>
+        <li><a href="#schema">شِمای پایگاه داده</a></li>
+        <li><a href="#quiz">آزمون پایان جلسه</a></li>
+      </ol>
+    </nav>
+
+    <section class="section gold" id="database">
+      <h2 class="section-title">🗄️ ۱. پایگاه داده چیست؟</h2>
+      <p><b>پایگاه داده</b> یا <bdi dir="ltr" class="en">Database</bdi> مجموعه‌ای سازمان‌یافته از داده‌هاست که برای ذخیره‌سازی، مدیریت و دسترسی مؤثر به اطلاعات طراحی می‌شود. به‌جای نگهداری پراکنده اطلاعات در فایل‌های متعدد، داده‌ها در ساختاری مشخص قرار می‌گیرند تا بتوان آن‌ها را سریع‌تر پیدا کرد، مرتب کرد و تحلیل کرد.</p>
+      <p>برای درک بهتر، یک کتابخانه را تصور کنید. کتابخانه باید اطلاعات کتاب‌ها، اعضا و امانت‌گرفتن کتاب‌ها را نگهداری کند. بنابراین می‌توان برای آن یک پایگاه داده شامل سه جدول در نظر گرفت:</p>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>📚 جدول کتاب‌ها</h3>
+          <p>اطلاعاتی مانند شناسه کتاب، عنوان، نویسنده و سال انتشار.</p>
+        </div>
+        <div class="info-card">
+          <h3>👤 جدول اعضا</h3>
+          <p>اطلاعات اعضای کتابخانه، مانند شماره عضویت، نام و سال ثبت‌نام.</p>
+        </div>
+        <div class="info-card">
+          <h3>🔄 جدول امانت‌ها</h3>
+          <p>مشخص می‌کند چه عضوی، کدام کتاب را و در چه زمانی امانت گرفته است.</p>
+        </div>
+      </div>
+
+      <p>جدول‌های پایگاه داده ممکن است در نگاه اول شبیه صفحه‌های یک نرم‌افزار صفحه‌گسترده باشند؛ اما پایگاه داده برای مدیریت حجم بیشتری از اطلاعات و کار هم‌زمان کاربران طراحی شده است. همچنین می‌توان با استفاده از سازوکارهای امنیتی مانند رمزنگاری، از داده‌ها محافظت کرد.</p>
+
+      <div class="box note">
+        <p>پایگاه داده فقط محلی برای نگهداری اطلاعات نیست؛ ساختار آن به‌گونه‌ای طراحی می‌شود که بتوان داده‌ها را به‌شکل منظم مدیریت کرد و در زمان نیاز به آن‌ها دسترسی داشت.</p>
+      </div>
+
+      <h3>زبان SQL چه نقشی دارد؟</h3>
+      <p><bdi dir="ltr" class="en">SQL</bdi> کوتاه‌شده عبارت <bdi dir="ltr" class="en">Structured Query Language</bdi> و به‌معنای «زبان پرس‌وجوی ساخت‌یافته» است. این زبان یکی از رایج‌ترین زبان‌ها برای ارتباط با داده‌های پایگاه داده، به‌ویژه پایگاه‌های داده رابطه‌ای، محسوب می‌شود.</p>
+      <p>با استفاده از دستورهای SQL که <bdi dir="ltr" class="en">Query</bdi> یا «پرس‌وجو» نامیده می‌شوند، می‌توان داده‌ها را بازیابی، سازمان‌دهی و تحلیل کرد. در این دوره ابتدا با ساختار پایگاه داده آشنا می‌شویم و سپس نوشتن دستورهای SQL برای کار با داده‌ها را یاد می‌گیریم.</p>
+
+      <div class="box example">
+        <p>اگر بخواهیم اطلاعات کتاب‌های یک کتابخانه را مشاهده کنیم، در مرحله کار با SQL می‌توانیم پرس‌وجویی بنویسیم که داده‌های جدول کتاب‌ها را درخواست کند. در این مرحله مهم است بدانیم داده‌ها در کدام جدول قرار دارند؛ نوشتن دستور را در بخش‌های بعدی یاد می‌گیریم.</p>
+      </div>
+    </section>
+
+    <section class="section blue" id="tables">
+      <h2 class="section-title">📋 ۲. جدول‌ها، سطرها و ستون‌ها</h2>
+      <p>جدول یا <bdi dir="ltr" class="en">Table</bdi> یکی از اجزای اصلی پایگاه داده است. هر جدول معمولاً اطلاعات مربوط به یک موضوع مشخص را نگهداری می‌کند؛ برای مثال، جدول اعضا فقط اطلاعات اعضای کتابخانه را در خود جای می‌دهد.</p>
+      <p>اطلاعات هر جدول در قالب سطرها و ستون‌ها سازمان‌دهی می‌شوند:</p>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>↔️ سطر یا رکورد</h3>
+          <p>هر سطر، اطلاعات مربوط به یک مورد یا یک مشاهده مشخص را نگهداری می‌کند. در جدول اعضا، هر سطر می‌تواند نماینده یک عضو باشد.</p>
+        </div>
+        <div class="info-card">
+          <h3>↕️ ستون یا فیلد</h3>
+          <p>هر ستون یک ویژگی مشخص از موارد ثبت‌شده را نشان می‌دهد؛ مانند نام عضو، سال عضویت یا مبلغ جریمه.</p>
+        </div>
+      </div>
+
+      <p>در اصطلاح پایگاه داده، به سطرها معمولاً <bdi dir="ltr" class="en">Record</bdi> و به ستون‌ها <bdi dir="ltr" class="en">Field</bdi> گفته می‌شود. بنابراین «سطر» و «رکورد» به یک بخش از اطلاعات اشاره دارند و «ستون» و «فیلد» نیز در این کاربرد معادل یکدیگرند.</p>
+
+      <div class="box example">
+        <p>فرض کنید جدول اعضای کتابخانه چهار رکورد دارد. هر رکورد اطلاعات یک عضو را ثبت می‌کند. اگر یکی از رکوردها مربوط به «جاسمین» باشد، همان سطر می‌تواند سال عضویت او و مبلغ جریمه‌ای را که به کتابخانه بدهکار است نیز نشان دهد. در مقابل، فیلد نام شامل نام تمام اعضای ثبت‌شده در جدول خواهد بود.</p>
+      </div>
+
+      <div class="box important">
+        <p>برای تشخیص سریع ساختار جدول، این دو پرسش را به خاطر بسپارید: «هر سطر درباره چه کسی یا چه چیزی است؟» و «هر ستون کدام ویژگی را ثبت می‌کند؟»</p>
+      </div>
+    </section>
+
+    <section class="section purple" id="relational">
+      <h2 class="section-title">🔗 ۳. پایگاه داده رابطه‌ای</h2>
+      <p>در بسیاری از پایگاه‌های داده، اطلاعات در چند جدول جداگانه ذخیره می‌شوند. این جدول‌ها مستقل از یکدیگر نیستند؛ بلکه از طریق داده‌های مشترک به هم ارتباط پیدا می‌کنند. به چنین ساختاری <bdi dir="ltr" class="en">Relational Database</bdi> یا پایگاه داده رابطه‌ای گفته می‌شود.</p>
+      <p>در مثال کتابخانه، جدول امانت‌ها می‌تواند از طریق شماره عضویت به جدول اعضا و از طریق شناسه کتاب به جدول کتاب‌ها متصل شود. به این ترتیب، اطلاعات هر موضوع در جدول مناسب خود باقی می‌ماند، اما هنگام نیاز می‌توان ارتباط میان آن‌ها را بررسی کرد.</p>
+
+      <figure class="lesson-image lesson-image--full">
+        <img src="images/1.png" alt="نمودار پایگاه داده رابطه‌ای شامل جدول employees و ارتباط آن با جدول‌های job_levels و departments" loading="lazy">
+        <figcaption>نمونه‌ای از پایگاه داده رابطه‌ای؛ جدول کارکنان از طریق شناسه‌های مشترک به جدول سطح شغلی و دپارتمان متصل است.</figcaption>
+      </figure>
+
+      <p>در نمودار بالا، جدول <bdi dir="ltr" class="en">employees</bdi> اطلاعات کارکنان را نگهداری می‌کند. ستون <bdi dir="ltr" class="en">job_level_id</bdi> آن را به جدول <bdi dir="ltr" class="en">job_levels</bdi> و ستون <bdi dir="ltr" class="en">dept_id</bdi> آن را به جدول <bdi dir="ltr" class="en">departments</bdi> مرتبط می‌کند. در نتیجه، اطلاعاتی مانند سطح شغلی یا نام دپارتمان لازم نیست برای هر کارمند به‌صورت کامل تکرار شود.</p>
+
+      <div class="box note">
+        <p>ارتباط میان جدول‌ها کمک می‌کند اطلاعات مرتبط را کنار هم تحلیل کنیم؛ برای مثال می‌توانیم مشخص کنیم هر کارمند در کدام دپارتمان فعالیت می‌کند یا چه سطح شغلی دارد.</p>
+      </div>
+
+      <h3>چرا اطلاعات را در چند جدول نگهداری می‌کنیم؟</h3>
+      <p>اگر تمام اطلاعات اعضا و امانت‌ها را در یک جدول بزرگ ترکیب کنیم، اطلاعات بعضی افراد ممکن است بارها تکرار شود. برای نمونه، اگر یک عضو چند کتاب امانت بگیرد، مشخصات او در چند سطر تکرار خواهد شد. در چنین وضعیتی، شماره عضویت دیگر در تمام سطرها یکتا نیست و تشخیص اطلاعات دشوارتر می‌شود.</p>
+      <p>با نگهداری اطلاعات در جدول‌های جداگانه و مرتبط، از تکرار غیرضروری داده‌ها جلوگیری می‌کنیم و می‌توانیم هنگام نوشتن پرس‌وجوهای SQL، اطلاعات موردنیاز را از جدول‌های مرتبط به دست آوریم.</p>
+
+      <div class="box warning">
+        <p>پرس‌وجوی SQL معمولاً داده‌ها را بر اساس دستورهای نوشته‌شده بازیابی و نمایش می‌دهد؛ اجرای یک پرس‌وجوی خواندن اطلاعات، به‌خودی‌خود داده‌های ذخیره‌شده را تغییر نمی‌دهد.</p>
+      </div>
+    </section>
+
+    <section class="section green" id="naming">
+      <h2 class="section-title">🏷️ ۴. نام‌گذاری جدول‌ها و فیلدها</h2>
+      <p>نام‌گذاری مناسب باعث می‌شود ساختار پایگاه داده خواناتر باشد و هنگام نوشتن پرس‌وجوهای SQL، نام جدول یا فیلد را راحت‌تر تشخیص دهیم. نام‌ها باید روشن و مرتبط با اطلاعاتی باشند که نگهداری می‌کنند؛ برای مثال، نام‌هایی مانند <bdi dir="ltr" class="en">books</bdi>، <bdi dir="ltr" class="en">products</bdi> و <bdi dir="ltr" class="en">inventory</bdi>.</p>
+
+      <h3>قواعد پیشنهادی برای نام جدول و فیلد</h3>
+      <ul>
+        <li>نام جدول و فیلد را با حروف کوچک بنویسید.</li>
+        <li>به‌جای فاصله، از زیرخط <bdi dir="ltr" class="en">_</bdi> استفاده کنید.</li>
+        <li>نام فیلد بهتر است مفرد باشد؛ زیرا ویژگی یک رکورد را توصیف می‌کند.</li>
+        <li>در یک جدول، دو فیلد نباید نام یکسان داشته باشند.</li>
+        <li>نام فیلد نباید با نام جدولی که در آن قرار دارد یکسان باشد؛ این کار تشخیص منظور را آسان‌تر می‌کند.</li>
+      </ul>
+
+      <figure class="lesson-image">
+        <img src="images/3.png" alt="مقایسه دو شیوه نام‌گذاری جدول و فیلدهای customers؛ نمونه پایین از حروف کوچک و نام‌های مفرد استفاده می‌کند" loading="lazy">
+        <figcaption>مقایسه نام‌گذاری نامناسب و مناسب برای جدول و فیلدها</figcaption>
+      </figure>
+
+      <p>در نمونه مناسب، نام جدول <bdi dir="ltr" class="en">customers</bdi> با حروف کوچک نوشته شده و نام فیلدها به‌شکل <bdi dir="ltr" class="en">id</bdi>، <bdi dir="ltr" class="en">customer</bdi>، <bdi dir="ltr" class="en">phone_num</bdi> و <bdi dir="ltr" class="en">zip_code</bdi> آمده است. این نام‌ها کوتاه، قابل‌فهم و هماهنگ با قواعد نام‌گذاری هستند.</p>
+
+      <h3>شناسه یکتا یا کلید</h3>
+      <p>در هر جدول معمولاً فیلدی ویژه وجود دارد که هر رکورد را از تمام رکوردهای دیگر همان جدول متمایز می‌کند. این فیلد را <bdi dir="ltr" class="en">Unique Identifier</bdi> یا شناسه یکتا می‌نامند و گاهی از آن با عنوان <bdi dir="ltr" class="en">Key</bdi> یاد می‌شود.</p>
+      <p>مقدار این فیلد باید برای هر رکورد یکتا باشد. برای مثال، در جدول اعضا، شماره کارت عضویت انتخاب مناسب‌تری از نام فرد است؛ زیرا ممکن است دو عضو نام یکسانی داشته باشند، اما شماره کارت آن‌ها باید متفاوت باشد.</p>
+
+      <figure class="lesson-image">
+        <img src="images/4.png" alt="جدول books با ستون‌های id، title، author، genre و pub_year؛ شناسه id برای هر کتاب مقدار متمایزی دارد" loading="lazy">
+        <figcaption>در جدول کتاب‌ها، ستون id شناسه‌ای مناسب برای تشخیص هر رکورد است.</figcaption>
+      </figure>
+
+      <div class="box example">
+        <p>در جدول <bdi dir="ltr" class="en">books</bdi> ممکن است دو کتاب عنوان‌های مشابه یا حتی یکسان داشته باشند؛ بنابراین عنوان کتاب الزاماً شناسه مناسبی نیست. سال انتشار نیز می‌تواند برای چند کتاب یکسان باشد. اما ستون <bdi dir="ltr" class="en">id</bdi> برای هر رکورد مقدار جداگانه‌ای دارد و انتخاب مناسب‌تری برای کلید جدول است.</p>
+      </div>
+    </section>
+
+    <section class="section orange" id="servers">
+      <h2 class="section-title">🖥️ ۵. سرورها و محل ذخیره‌سازی داده</h2>
+      <p>داده‌های پایگاه داده باید روی یک بستر ذخیره‌سازی قرار بگیرند. در بسیاری از سامانه‌ها، اطلاعات روی دیسک سخت یک <bdi dir="ltr" class="en">Server</bdi> یا سرور ذخیره می‌شوند.</p>
+      <p>سرور رایانه‌ای قدرتمند است که اطلاعات را نگهداری می‌کند و از طریق درخواست‌هایی که در بستر شبکه دریافت می‌کند، خدماتی را در اختیار کاربران یا رایانه‌های دیگر قرار می‌دهد. در مثال پایگاه داده، یکی از این خدمات، فراهم‌کردن امکان دسترسی به داده‌هاست.</p>
+      <p>سرورها می‌توانند تعداد زیادی درخواست را به‌صورت هم‌زمان مدیریت کنند. به همین دلیل چندین کاربر یا رایانه می‌توانند در یک بازه زمانی به اطلاعات یک سامانه دسترسی داشته باشند.</p>
+
+      <div class="box note">
+        <p>سرور و پایگاه داده یک مفهوم نیستند: سرور، رایانه یا بستری است که خدمات ارائه می‌کند؛ پایگاه داده، مجموعه سازمان‌یافته اطلاعاتی است که ممکن است روی فضای ذخیره‌سازی سرور قرار داشته باشد.</p>
+      </div>
+    </section>
+
+    <section class="section blue" id="data-types">
+      <h2 class="section-title">🔢 ۶. انواع داده</h2>
+      <p>هنگام ایجاد جدول، برای هر فیلد باید مشخص کنیم چه نوع اطلاعاتی در آن ذخیره خواهد شد. این ویژگی را <bdi dir="ltr" class="en">Data Type</bdi> یا نوع داده می‌نامند.</p>
+      <p>انتخاب نوع داده به ماهیت اطلاعات و عملیات موردنیاز بستگی دارد. برای مثال، انجام عملیات ضرب روی عدد منطقی است؛ اما ضرب‌کردن نام یک شخص معنایی ندارد. بنابراین نوع داده باید با محتوای فیلد سازگار باشد.</p>
+
+      <div class="table-scroll">
+        <table >
+          <thead>
+            <tr>
+              <th>نوع داده</th>
+              <th>کاربرد</th>
+              <th>نمونه</th>
+              <th>توضیح</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><bdi dir="ltr" class="en">VARCHAR</bdi></td>
+              <td>رشته متنی</td>
+              <td><bdi dir="ltr" class="en">"Maham"</bdi></td>
+              <td>برای ذخیره توالی‌ای از نویسه‌ها؛ مانند حروف، اعداد و نشانه‌گذاری.</td>
+            </tr>
+            <tr>
+              <td><bdi dir="ltr" class="en">INT</bdi></td>
+              <td>عدد صحیح</td>
+              <td><bdi dir="ltr" class="en">125</bdi></td>
+              <td>برای ذخیره عددهای بدون بخش اعشاری.</td>
+            </tr>
+            <tr>
+              <td><bdi dir="ltr" class="en">NUMERIC</bdi></td>
+              <td>عدد با دقت مشخص</td>
+              <td><bdi dir="ltr" class="en">2.05</bdi></td>
+              <td>برای ذخیره مقادیر عددی دارای بخش اعشاری و دقت عددی مشخص.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>رشته‌ها؛ VARCHAR</h3>
+      <p><bdi dir="ltr" class="en">String</bdi> یا رشته، دنباله‌ای از نویسه‌هاست. این نویسه‌ها می‌توانند شامل حروف، اعداد یا علائم نگارشی باشند. نام اعضای کتابخانه، مانند <bdi dir="ltr" class="en">Maham</bdi> و <bdi dir="ltr" class="en">James</bdi>، نمونه‌هایی از رشته هستند.</p>
+      <p>یکی از انواع داده رایج برای نگهداری رشته‌ها، <bdi dir="ltr" class="en">VARCHAR</bdi> است. این نوع داده برای نگهداری متن‌هایی با طول‌های متفاوت کاربرد دارد.</p>
+
+      <h3>اعداد صحیح؛ INT</h3>
+      <p>نوع داده <bdi dir="ltr" class="en">Integer</bdi> برای عددهای صحیح، یعنی عددهایی بدون بخش اعشاری، استفاده می‌شود. <bdi dir="ltr" class="en">INT</bdi> یکی از انواع رایج داده برای ذخیره این اعداد است. در بسیاری از پیاده‌سازی‌های متداول، دامنه آن حدوداً از منفی دو میلیارد تا مثبت دو میلیارد را پوشش می‌دهد؛ دامنه دقیق به سامانه پایگاه داده بستگی دارد.</p>
+
+      <h3>اعداد اعشاری؛ NUMERIC</h3>
+      <p>برای ذخیره عددهایی که بخش اعشاری دارند، مانند مبلغ جریمه <bdi dir="ltr" class="en">2.05</bdi>، از نوع داده عددی مناسب استفاده می‌کنیم. در این درس، <bdi dir="ltr" class="en">NUMERIC</bdi> به‌عنوان نوعی برای نگهداری عددهای دارای بخش اعشاری معرفی می‌شود. این نوع داده می‌تواند دقت عددی مشخصی را حفظ کند.</p>
+
+      <div class="box important">
+        <p>نوع داده را فقط بر اساس ظاهر مقدار انتخاب نکنید؛ به کاربرد آن نیز توجه کنید. برای نمونه، شماره تلفن ممکن است از رقم تشکیل شده باشد، اما معمولاً قرار نیست روی آن عملیات ریاضی انجام دهیم؛ پس نباید صرفاً به دلیل عددی‌بودن ظاهر آن، آن را یک مقدار عددی محاسباتی در نظر بگیریم.</p>
+      </div>
+    </section>
+
+    <section class="section gold" id="schema">
+      <h2 class="section-title">🧭 ۷. شِمای پایگاه داده</h2>
+      <p><bdi dir="ltr" class="en">Database Schema</bdi> یا شِمای پایگاه داده، طرح یا نقشه‌ای از ساختار پایگاه داده است. شِما نشان می‌دهد چه جدول‌هایی در پایگاه داده وجود دارند، جدول‌ها چگونه به یکدیگر مرتبط‌اند و هر فیلد چه نوع داده‌ای را می‌تواند نگهداری کند.</p>
+      <p>برای مثال، شِمای پایگاه داده کتابخانه می‌تواند نشان دهد که فیلدهای عنوان کتاب، نویسنده و ژانر از نوع <bdi dir="ltr" class="en">VARCHAR</bdi> هستند. همچنین می‌تواند ارتباط جدول اعضا با جدول امانت‌ها را نمایش دهد و مشخص کند که جدول اعضا مستقیماً به جدول کتاب‌ها متصل نشده است.</p>
+
+      <div class="box note">
+        <p>برای آشنایی با یک پایگاه داده جدید، شِما یکی از بهترین نقاط شروع است؛ زیرا پیش از نوشتن پرس‌وجو می‌توانید ساختار جدول‌ها، ارتباط‌ها و نوع داده فیلدها را بررسی کنید.</p>
+      </div>
+
+      <h3>تفاوت نمودار ارتباطی و شِما</h3>
+      <p>نمودار ارتباطی معمولاً بر نمایش جدول‌ها و پیوند میان آن‌ها تمرکز دارد. شِمای پایگاه داده می‌تواند علاوه بر این ارتباط‌ها، جزئیات بیشتری مانند نام فیلدها و نوع داده هر فیلد را نیز نشان دهد. بنابراین برای فهم نوع داده یک فیلد، باید به اطلاعات شِمای پایگاه داده مراجعه کنیم؛ صرفاً نگاه‌کردن به مقادیر ثبت‌شده در جدول کافی نیست.</p>
+    </section>
+
+    <section class="section purple" id="query-preview">
+      <h2 class="section-title">⌨️ ۸. نگاهی مقدماتی به پرس‌وجوهای SQL</h2>
+      <p>در بخش‌های بعدی، دستورهای SQL را برای بازیابی و تحلیل داده‌ها به‌کار خواهیم برد. دو نمونه زیر نشان می‌دهند که یک پرس‌وجو می‌تواند فقط مقادیر یکتا را انتخاب کند یا تعداد ردیف‌های خروجی را محدود سازد.</p>
+
+      <h3>انتخاب مقادیر یکتا با DISTINCT</h3>
+      <p>واژه <bdi dir="ltr" class="en">DISTINCT</bdi> برای حذف مقادیر تکراری از نتیجه یک پرس‌وجو به کار می‌رود. اگر چند رکورد مقدار یکسانی در ستون موردنظر داشته باشند، مقدار تکراری فقط یک‌بار در خروجی نمایش داده می‌شود.</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT DISTINCT employee_id
+FROM campaigns;</code></pre>
+      </div>
+      <p>این دستور، مقادیر یکتای ستون <bdi dir="ltr" class="en">employee_id</bdi> را از جدول <bdi dir="ltr" class="en">campaigns</bdi> برمی‌گرداند؛ نه فهرست کانال‌ها و نه شناسه کمپین‌ها.</p>
+
+      <h3>محدودکردن تعداد ردیف‌ها با LIMIT</h3>
+      <p>واژه <bdi dir="ltr" class="en">LIMIT</bdi> تعداد ردیف‌هایی را که در خروجی پرس‌وجو برگردانده می‌شوند محدود می‌کند. برای مثال، دستور زیر حداکثر سه ردیف از ستون‌های انتخاب‌شده را نمایش می‌دهد:</p>
+      <div class="code-block" data-lang="sql">
+        <div class="code-block__header"><span class="code-block__lang"></span><button class="copy-code" type="button">📋 کپی</button></div>
+        <pre><code class="language-sql">SELECT campaign_id, customer_id, spend
+FROM campaigns
+LIMIT 3;</code></pre>
+      </div>
+      <div class="box warning">
+        <p>بدون تعیین ترتیب با <bdi dir="ltr" class="en">ORDER BY</bdi>، نباید فرض کنیم کدام سه ردیف حتماً انتخاب می‌شوند. <bdi dir="ltr" class="en">LIMIT 3</bdi> تعداد ردیف‌ها را محدود می‌کند، نه اینکه به‌تنهایی ترتیب مشخصی برای آن‌ها تعیین کند.</p>
+      </div>
+
+      <h3>گونه‌های مختلف SQL</h3>
+      <p>سامانه‌های مدیریت پایگاه داده ممکن است گونه‌ها یا گویش‌های متفاوتی از SQL داشته باشند. بسیاری از واژه‌های کلیدی و ساختارهای اصلی میان آن‌ها مشترک است، اما ممکن است در بعضی قابلیت‌ها، توابع یا جزئیات نحوی تفاوت‌هایی وجود داشته باشد. برخی محصولات نیز نسخه‌های رایگان و تجاری ارائه می‌کنند.</p>
+    </section>
+
+    <section class="section green" id="summary">
+      <h2 class="section-title">✅ جمع‌بندی جلسه</h2>
+      <div class="key-takeaway">
+        <div class="key-takeaway__icon" aria-hidden="true">🧠</div>
+        <div>
+          <h3>آنچه باید به خاطر بسپارید</h3>
+          <ul>
+            <li>پایگاه داده، داده‌ها را در ساختاری سازمان‌یافته نگهداری می‌کند و SQL زبان رایج ارتباط با داده‌هاست.</li>
+            <li>جدول از سطرها و ستون‌ها تشکیل می‌شود؛ سطر یک رکورد و ستون یک فیلد را نشان می‌دهد.</li>
+            <li>در پایگاه داده رابطه‌ای، جدول‌ها از طریق داده‌های مشترک به یکدیگر متصل می‌شوند.</li>
+            <li>شناسه یکتا هر رکورد را از رکوردهای دیگر همان جدول متمایز می‌کند.</li>
+            <li>سرور بستر ارائه خدمات و ذخیره‌سازی است و می‌تواند درخواست‌های متعدد را مدیریت کند.</li>
+            <li>نوع داده باید با ماهیت اطلاعات و عملیات موردنیاز سازگار باشد؛ مانند VARCHAR، INT و NUMERIC.</li>
+            <li>شِما نقشه ساختار پایگاه داده، جدول‌ها، ارتباط‌ها و نوع داده فیلدهاست.</li>
+            <li>DISTINCT مقادیر تکراری را از نتیجه حذف می‌کند و LIMIT تعداد ردیف‌های خروجی را محدود می‌سازد.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="quiz">
+      <h2 class="section-title">📝 آزمون تعاملی پایان جلسه</h2>
+      <p>به پرسش‌ها پاسخ دهید. بعضی پرسش‌ها بر اساس جدول‌ها و نمودارهای همین درس طراحی شده‌اند؛ بنابراین اطلاعات لازم در خود سؤال نمایش داده شده است.</p>
+
+      <section class="quiz-container" data-quiz aria-label="آزمون جلسه اول SQL">
+        <header class="quiz-header">
+          <div>
+            <strong>آزمون مبانی پایگاه داده</strong>
+            <p>۱۰ پرسش · هر پرسش ۱ امتیاز</p>
+          </div>
+          <span class="quiz-counter" data-quiz-counter>۰ از ۱۰ سؤال پاسخ داده‌شده</span>
+        </header>
+        <div class="quiz-progress-label">میزان پیشرفت آزمون</div>
+        <div class="quiz-progress" role="progressbar" aria-label="پیشرفت آزمون">
+          <span class="quiz-progress__bar" data-quiz-progress></span>
+        </div>
+
+        <article class="quiz-item" data-type="single_select" data-correct="tables" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۱</span> کدام گزینه یکی از اجزای اصلی پایگاه داده است؟</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="rows">سطر</button>
+            <button class="quiz-option" type="button" data-value="tables">جدول</button>
+            <button class="quiz-option" type="button" data-value="sql">زبان SQL</button>
+            <button class="quiz-option" type="button" data-value="server">سرور</button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="relational" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۲</span> نمودار زیر چه ساختاری را نشان می‌دهد؟</h3>
+          <figure class="lesson-image">
+            <img src="images/2.png" alt="جدول employees مرتبط با دو جدول job_levels و departments" loading="lazy">
+            <figcaption>ارتباط جدول کارکنان با سطح شغلی و دپارتمان</figcaption>
+          </figure>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="one">یک جدول که دو پایگاه داده دیگر درون آن قرار گرفته‌اند</button>
+            <button class="quiz-option" type="button" data-value="relational">یک پایگاه داده رابطه‌ای شامل سه جدول مرتبط</button>
+            <button class="quiz-option" type="button" data-value="unrelated">سه جدول مستقل و بدون هیچ ارتباطی</button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="id" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۳</span> کدام فیلد بهترین انتخاب برای شناسه یکتای جدول کتاب‌هاست؟</h3>
+          <figure class="lesson-image">
+            <img src="images/4.png" alt="جدول books با ستون‌های id، title، author، genre و pub_year" loading="lazy">
+          </figure>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="title"><bdi dir="ltr" class="en">title</bdi></button>
+            <button class="quiz-option" type="button" data-value="year"><bdi dir="ltr" class="en">pub_year</bdi></button>
+            <button class="quiz-option" type="button" data-value="id"><bdi dir="ltr" class="en">id</bdi></button>
+            <button class="quiz-option" type="button" data-value="author"><bdi dir="ltr" class="en">author</bdi></button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="second" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۴</span> کدام جدول از نظر شیوه نام‌گذاری، ساختار مناسب‌تری دارد؟</h3>
+          <figure class="lesson-image">
+            <img src="images/3.png" alt="مقایسه جدول Customers با نام‌های جمع و حروف بزرگ در برابر جدول customers با نام‌های کوچک و مفرد" loading="lazy">
+          </figure>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="first">جدول اول با نام Customers و فیلدهای ids و phone_nums</button>
+            <button class="quiz-option" type="button" data-value="second">جدول دوم با نام customers و فیلدهای id و phone_num</button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="employee" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۵</span> خروجی پرس‌وجوی زیر کدام ستون را شامل می‌شود؟</h3>
+          <div class="code-block" data-lang="sql">
+            <div class="code-block__header"><span class="code-block__lang"></span></div>
+            <pre><code class="language-sql">SELECT DISTINCT employee_id
+FROM campaigns;</code></pre>
+          </div>
+          <p>فرض کنید جدول <bdi dir="ltr" class="en">campaigns</bdi> شامل ستون‌های زیر است. کدام گزینه با ستون انتخاب‌شده در دستور مطابقت دارد؟</p>
+          <div class="table-scroll">
+            <table >
+              <thead><tr><th><bdi dir="ltr" class="en">channel</bdi></th></tr></thead>
+              <tbody><tr><td>Billboard</td></tr><tr><td>TV</td></tr><tr><td>Paid search</td></tr><tr><td>Social Media</td></tr></tbody>
+            </table>
+            <table >
+              <thead><tr><th><bdi dir="ltr" class="en">employee_id</bdi></th></tr></thead>
+              <tbody><tr><td>9</td></tr><tr><td>6</td></tr><tr><td>17</td></tr><tr><td>38</td></tr></tbody>
+            </table>
+            <table >
+              <thead><tr><th><bdi dir="ltr" class="en">campaign_id</bdi></th></tr></thead>
+              <tbody><tr><td>3</td></tr><tr><td>1</td></tr><tr><td>4</td></tr><tr><td>2</td></tr><tr><td>5</td></tr></tbody>
+            </table>
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="channel">ستون <bdi dir="ltr" class="en">channel</bdi></button>
+            <button class="quiz-option" type="button" data-value="employee">ستون <bdi dir="ltr" class="en">employee_id</bdi></button>
+            <button class="quiz-option" type="button" data-value="campaign">ستون <bdi dir="ltr" class="en">campaign_id</bdi></button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="first" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۶</span> با توجه به دستور زیر، کدام خروجی با ستون‌های انتخاب‌شده و محدودیت تعداد ردیف‌ها سازگار است؟</h3>
+          <div class="code-block" data-lang="sql">
+            <div class="code-block__header"><span class="code-block__lang"></span></div>
+            <pre><code class="language-sql">SELECT campaign_id, customer_id, spend
+FROM campaigns
+LIMIT 3;</code></pre>
+          </div>
+          <div class="table-scroll">
+            <table >
+              <thead><tr><th><bdi dir="ltr" class="en">campaign_id</bdi></th><th><bdi dir="ltr" class="en">customer_id</bdi></th><th><bdi dir="ltr" class="en">spend</bdi></th></tr></thead>
+              <tbody><tr><td>1</td><td>8493</td><td>3312.32</td></tr><tr><td>2</td><td>1755</td><td>4206.94</td></tr><tr><td>3</td><td>679</td><td>7359.58</td></tr></tbody>
+            </table>
+            <table >
+              <thead><tr><th><bdi dir="ltr" class="en">campaign_id</bdi></th><th><bdi dir="ltr" class="en">employee_id</bdi></th></tr></thead>
+              <tbody><tr><td>1</td><td>6</td></tr><tr><td>2</td><td>9</td></tr><tr><td>3</td><td>9</td></tr></tbody>
+            </table>
+            <table >
+              <thead><tr><th><bdi dir="ltr" class="en">campaign_id</bdi></th><th><bdi dir="ltr" class="en">channel</bdi></th><th><bdi dir="ltr" class="en">employee_id</bdi></th></tr></thead>
+              <tbody><tr><td>1</td><td>TV</td><td>6</td></tr><tr><td>2</td><td>Billboard</td><td>9</td></tr><tr><td>3</td><td>Paid search</td><td>9</td></tr></tbody>
+            </table>
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="first">جدول اول؛ سه ستون انتخاب‌شده و سه ردیف</button>
+            <button class="quiz-option" type="button" data-value="second">جدول دوم؛ دو ستون و سه ردیف</button>
+            <button class="quiz-option" type="button" data-value="third">جدول سوم؛ سه ستون متفاوت و سه ردیف</button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="a" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۷</span> کدام گزاره درباره گونه‌های مختلف SQL نادرست است؟</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="a">بیشتر واژه‌های کلیدی در گونه‌های مختلف SQL با یکدیگر متفاوت‌اند.</button>
+            <button class="quiz-option" type="button" data-value="b">برخی محصولات پایگاه داده می‌توانند نسخه رایگان یا تجاری داشته باشند.</button>
+            <button class="quiz-option" type="button" data-value="c">گونه‌های مختلف SQL ممکن است در بعضی قابلیت‌ها و جزئیات تفاوت داشته باشند.</button>
+            <button class="quiz-option" type="button" data-value="d">SQL برای تعامل با پایگاه‌های داده رابطه‌ای به کار می‌رود.</button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="many" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۸</span> کدام عبارت درباره سرورها درست است؟</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="db">سرورها از چند پایگاه داده تشکیل شده‌اند.</button>
+            <button class="quiz-option" type="button" data-value="many">یک سرور می‌تواند هم‌زمان به درخواست‌های چندین رایانه پاسخ دهد.</button>
+            <button class="quiz-option" type="button" data-value="personal">سرورها فقط رایانه‌های شخصی مانند لپ‌تاپ هستند.</button>
+            <button class="quiz-option" type="button" data-value="one">یک سرور در هر لحظه فقط می‌تواند یک درخواست را مدیریت کند.</button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="schema" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۹</span> برای مشاهده نوع داده هر فیلد، مانند <bdi dir="ltr" class="en">VARCHAR</bdi>، <bdi dir="ltr" class="en">INT</bdi> یا <bdi dir="ltr" class="en">NUMERIC</bdi>، باید به کجا مراجعه کنیم؟</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="table">به هر جدول به‌تنهایی</button>
+            <button class="quiz-option" type="button" data-value="diagram">فقط به نمودار ارتباط میان جدول‌ها</button>
+            <button class="quiz-option" type="button" data-value="values">با نگاه‌کردن به مقادیر ذخیره‌شده در هر فیلد</button>
+            <button class="quiz-option" type="button" data-value="schema">به شِمای پایگاه داده</button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <article class="quiz-item" data-type="single_select" data-correct="numeric" data-points="1">
+          <h3 class="quiz-question"><span class="quiz-question__number">۱۰</span> برای فیلدی با مقدار نمونه <bdi dir="ltr" class="en">63.75</bdi>، کدام نوع داده مناسب‌تر است؟</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" type="button" data-value="int"><bdi dir="ltr" class="en">INT</bdi></button>
+            <button class="quiz-option" type="button" data-value="varchar"><bdi dir="ltr" class="en">VARCHAR</bdi></button>
+            <button class="quiz-option" type="button" data-value="numeric"><bdi dir="ltr" class="en">NUMERIC</bdi></button>
+          </div>
+          <div class="quiz-feedback" data-quiz-feedback></div>
+        </article>
+
+        <div class="quiz-actions">
+          <button class="quiz-action quiz-action--secondary quiz-reset" type="button" data-quiz-reset>↻ شروع مجدد آزمون</button>
+        </div>
+        <div class="quiz-result" data-quiz-result>
+          <strong class="quiz-result__score quiz-score" data-quiz-score></strong>
+          <span data-quiz-result-detail></span>
+        </div>
+      </section>
+    </section>
+
+    <nav class="lesson-navigation" aria-label="ناوبری جلسات">
+      <a class="lesson-navigation__link" href="Lesson_0.html">
+        <span><span class="lesson-navigation__label">بازگشت</span><span class="lesson-navigation__title">نمونه قالب</span></span>
+        <span class="lesson-navigation__arrow" aria-hidden="true">←</span>
+      </a>
+      <a class="lesson-navigation__link" href="#top">
+        <span><span class="lesson-navigation__label">بازگشت</span><span class="lesson-navigation__title">ابتدای صفحه</span></span>
+        <span class="lesson-navigation__arrow" aria-hidden="true">↑</span>
+      </a>
+      <a class="lesson-navigation__link lesson-navigation__link--next" href="Lesson_02.html">
+        <span><span class="lesson-navigation__label">ادامه مسیر</span><span class="lesson-navigation__title">رفتن به جلسه دوم</span></span>
+        <span class="lesson-navigation__arrow" aria-hidden="true">→</span>
+      </a>
+    </nav>
+
+    <footer class="site-footer">
+      <p>© MATCUB · SQL Learning Notes</p>
+      <p><a class="inline-link" href="#top">بازگشت به ابتدای صفحه</a></p>
+    </footer>
+  </main>
+</body>
+</html>
